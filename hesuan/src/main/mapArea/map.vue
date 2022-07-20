@@ -1,47 +1,44 @@
 <template>
-    <div>
-        <div id="map" class="map"></div>
-    </div>
+  <div id="mapDiv"></div>
 </template>
-
+ 
 <script>
-import { Map, View } from "ol";//地图,视图
-import OSM from "ol/source/OSM"; //可以理解为数据源,就是一张图片
-import TileLayer from "ol/layer/Tile"; //可以理解为图层
-import { fromLonLat } from "ol/proj";//将坐标从经度/纬度转换为不同的投影。
+import "ol/ol.css";
+import {Map, View} from "ol";
+import TileLayer from "ol/layer/Tile";
+import OSM from "ol/source/OSM";
+ 
 export default {
   data() {
     return {
-      map: null,
+      map: null
     };
   },
-  methods: {
-    createMap() {
-      this.map = new Map({
-        target: "map",
-        layers: [
-          new TileLayer({
-            source: new OSM({}),
-          }),
-        ],
-        view: new View({
-          center: [114.624, 30.4634],
-          projection: "EPSG:3857",
-          zoom: 8,
-          maxZoom: 20,
-        }),
-      });
-    },
-  },
   mounted() {
-    this.createMap();
-  },
+    new Map({
+      target: "mapDiv",
+      layers: [new TileLayer({
+        // 使用OSM地图
+        source: new OSM()
+      })],
+      view: new View({
+        // 使用WGS84坐标系
+        projection: "EPSG:4326",
+        center: [114.612, 30.4604],
+        // 初始16倍
+        zoom: 16
+      })
+    });
+  }
+ 
 };
 </script>
-
-<style>
-.map{
-    height: 400px;
-    width: 100%;
+ 
+<style scoped>
+ 
+#mapDiv {
+  width: 100%;
+  height: 400px;
 }
+ 
 </style>
