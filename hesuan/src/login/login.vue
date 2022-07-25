@@ -63,22 +63,23 @@ export default {
       this.form.userpwd = "";
     },
     login() {
-      const self = this;
-      if (self.form.useremail != "" && self.form.userpwd != "") {
-        self.$router.push({
+      const that = this;
+      if (that.form.useremail != "" && that.form.userpwd != "") {
+        window.sessionStorage.setItem('isLogin','true')
+        that.$router.push({
           name: "main",
-          params: { username: this.form.username },
+          params: { username: this.form.useremail },
         });
       } else {
         alert("填写不能为空！");
       }
     },
     register() {
-      const self = this;
+      const that = this;
       if (
-        self.form.username != "" &&
-        self.form.useremail != "" &&
-        self.form.userpwd != ""
+        that.form.username != "" &&
+        that.form.useremail != "" &&
+        that.form.userpwd != ""
       ) {
       } else {
         alert("填写不能为空！");
@@ -88,7 +89,7 @@ export default {
 };
 </script>
 
-<style scoped="scoped">
+<style scoped>
 .login-register {
   width: 100vw;
   height: 100vh;

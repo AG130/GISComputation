@@ -2,15 +2,17 @@
   <div>
     <div>
       <el-container>
-        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-          <el-menu :default-openeds="['1']">
+        <el-aside width="200px">
+          <div class="asideBand">核酸检测助手</div>
+          <div class="personalInf"><PersonalInf ref="personalInf"/></div>
+          <el-menu :default-openeds="['1']" background-color="#66ccff" active-text-color="white">
             <el-submenu index="1">
-              <template slot="title">地图功能控件</template>
+              <template v-slot:title>地图功能控件</template>
               <el-menu-item-group>
                 <el-menu-item index="1-1">地图复位</el-menu-item>
                 <el-menu-item index="1-2">地图定位</el-menu-item>
                 <el-menu-item index="1-3">切换地理底图</el-menu-item>
-                <el-menu-item index="1-3">鹰眼开关</el-menu-item>
+                <el-menu-item index="1-4">鹰眼开关</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
           </el-menu>
@@ -27,13 +29,24 @@
 </template>
 
 <script>
+import PersonalInf from './aside/personalInf.vue';
 import Map from "./mapArea/map.vue";
 export default {
-  components: { Map },
+  components: { Map, PersonalInf },
+  provide(){
+    return{
+      username:this.username
+    }
+  },
+  data(){
+    return{
+      username:this.$route.params.username
+    }
+  }
 };
 </script>
 
-<style>
+<style scoped>
 .el-header,
 .el-footer {
   background-color: #b3c0d1;
@@ -43,10 +56,8 @@ export default {
 }
 
 .el-aside {
-  background-color: #d3dce6;
+  background-color: #6cf;
   color: #333;
-  text-align: center;
-  line-height: 200px;
 }
 
 .el-main {
@@ -54,5 +65,14 @@ export default {
   color: #333;
   text-align: center;
   line-height: 160px;
+}
+.asideBand {
+  font-size: large;
+  height: 60px;
+  line-height: 60px;
+}
+.personalInf{
+  background-color:white;
+  height: 200px;
 }
 </style>
