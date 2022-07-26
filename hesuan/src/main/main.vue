@@ -20,7 +20,8 @@
         <el-container>
           <el-header>Header</el-header>
           <el-main>
-            <Map ref="map"></Map>
+            <div v-show="this.tab==0"><Map ref="map"/></div>
+            <div v-show="this.tab==1"><PInfDetail ref="pInfDetail"/></div>
           </el-main>
         </el-container>
       </el-container>
@@ -30,17 +31,25 @@
 
 <script>
 import PersonalInf from './aside/personalInf.vue';
-import Map from "./mapArea/map.vue";
+import Map from "./mainArea/map.vue";
+import PInfDetail from "./mainArea/pInfDetail.vue";
 export default {
-  components: { Map, PersonalInf },
+  components: { Map, PersonalInf,PInfDetail },
   provide(){
     return{
-      username:this.username
+      username:this.username,
+      changeView:this.changeView,
     }
   },
   data(){
     return{
-      username:this.$route.params.username
+      username:this.$route.params.username,
+      tab:0,
+    }
+  },
+  methods:{
+    changeView(id){
+      this.tab=id;
     }
   }
 };
@@ -64,7 +73,6 @@ export default {
   background-color: #e9eef3;
   color: #333;
   text-align: center;
-  line-height: 160px;
 }
 .asideBand {
   font-size: large;

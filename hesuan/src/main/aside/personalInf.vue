@@ -8,44 +8,67 @@
         @change="changeAvatar"
         class="header-upload-btn user-header-com"
       />
-      <el-avatar alt="更改头像" shape="square" :src="url" :size="100" fit="fill"></el-avatar>
+      <el-avatar
+        alt="更改头像"
+        shape="square"
+        :src="url"
+        :size="100"
+        fit="fill"
+      ></el-avatar>
     </div>
     <div class="usernameInf">
-      <span>欢迎:{{username}}</span>
+      <span>欢迎:{{ username }}</span>
     </div>
     <div class="personalSelect">
-      <div><i class="el-icon-user-solid"></i></div>
-      <div><i class="el-icon-message"></i></div>
-      <div><i class="el-icon-switch-button" @click="exitLogin"></i></div>
+      <div class="clickCss" @click="showPInfDetail">
+        <div>
+          <i class="el-icon-user-solid"></i>
+        </div>
+        <div class="inf">个人信息</div>
+      </div>
+      <div class="clickCss">
+        <div>
+          <i class="el-icon-message"></i>
+        </div>
+        <div class="inf">私信</div>
+      </div>
+      <div class="clickCss" @click="exitLogin">
+        <div>
+          <i class="el-icon-switch-button"></i>
+        </div>
+        <div class="inf">退出登录</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  inject:['username'],
+  inject: ["username", "changeView"],
   data() {
     return {
       url: "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
-      
     };
   },
   methods: {
     changeAvatar(e) {
       var file = e.target.files[0];
-      var _this = this;
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = function () {
-          var dataURL = reader.result;
-          _this.url = dataURL;
-      }
+      var that = this;
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function () {
+        var dataURL = reader.result;
+        that.url = dataURL;
+      };
     },
-    exitLogin(){
-        this.$router.push({
-            name:'login'
-        })
-    }
+    showPInfDetail() {
+      this.changeView("1");
+    },
+    exitLogin() {
+      this.$router.push({
+        name: "login",
+      });
+    },
   },
 };
 </script>
@@ -73,7 +96,15 @@ export default {
   font-size: 30px;
   line-height: 60px;
 }
-.usernameInf{
-height: 10px;
+.usernameInf {
+  height: 10px;
+}
+.clickCss{
+cursor: pointer;
+}
+.inf {
+  height: 10px;
+  font-size: 10px;
+  line-height: 10px;
 }
 </style>
