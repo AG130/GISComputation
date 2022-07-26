@@ -9,10 +9,11 @@
             <el-submenu index="1">
               <template v-slot:title>地图功能控件</template>
               <el-menu-item-group>
-                <el-menu-item index="1-1">地图复位</el-menu-item>
-                <el-menu-item index="1-2">地图定位</el-menu-item>
-                <el-menu-item index="1-3">切换地理底图</el-menu-item>
-                <el-menu-item index="1-4">鹰眼开关</el-menu-item>
+                <el-menu-item index="1-1" @click="showMap">地图展示</el-menu-item>
+                <el-menu-item index="1-2">地图复位</el-menu-item>
+                <el-menu-item index="1-3">地图定位</el-menu-item>
+                <el-menu-item index="1-4">切换地理底图</el-menu-item>
+                <el-menu-item index="1-5">鹰眼开关</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
           </el-menu>
@@ -50,6 +51,9 @@ export default {
   methods:{
     changeView(id){
       this.tab=id;
+    },
+    showMap(){
+      this.tab=0;
     }
   }
 };

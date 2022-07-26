@@ -89,6 +89,7 @@ export default {
   top: 0;
   opacity: 0;
   /* 通过定位把input放在img标签上面，通过不透明度隐藏 */
+  cursor:pointer;
 }
 .personalSelect {
   display: flex;
@@ -98,6 +99,7 @@ export default {
 }
 .usernameInf {
   height: 10px;
+  font-size: 10px;
 }
 .clickCss{
 cursor: pointer;
