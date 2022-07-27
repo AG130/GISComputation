@@ -16,8 +16,8 @@
           <div class="btitle">创建账户</div>
           <div class="bform">
             <input type="text" placeholder="用户名" v-model="form.username" />
-            <span class="errTips" v-if="existed">* 用户名已经存在！ *</span>
             <input type="email" placeholder="邮箱" v-model="form.useremail" />
+            <span class="errTips" v-if="existed">* 该邮箱已被使用！ *</span>
             <input type="password" placeholder="密码" v-model="form.userpwd" />
           </div>
           <button class="bbutton" @click="register">注册</button>
