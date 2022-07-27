@@ -6,9 +6,9 @@
           <div class="btitle">账户登录</div>
           <div class="bform">
             <input type="email" placeholder="邮箱" v-model="form.useremail" />
-            <span class="errTips" v-if="emailError">* 邮箱填写错误 *</span>
+            <span class="errTips" v-if="eEmpty">* 邮箱不能为空！ *</span>
             <input type="password" placeholder="密码" v-model="form.userpwd" />
-            <span class="errTips" v-if="emailError">* 密码填写错误 *</span>
+            <span class="errTips" v-if="pEmpty">* 密码不能为空！ *</span>
           </div>
           <button class="bbutton" @click="login">登录</button>
         </div>
@@ -45,8 +45,8 @@ export default {
   data() {
     return {
       isLogin: true,
-      emailError: false,
-      passwordError: false,
+      eEmpty: false,
+      pEmpty: false,
       existed: false,
       form: {
         username: "",
@@ -65,13 +65,22 @@ export default {
     login() {
       const that = this;
       if (that.form.useremail != "" && that.form.userpwd != "") {
-        window.sessionStorage.setItem('isLogin','true')
+        that.eEmpty = false;
+        that.pEmpty = false;
+        window.sessionStorage.setItem("isLogin", "true");
         that.$router.push({
           name: "main",
           params: { username: this.form.useremail },
         });
+      } else if (that.form.useremail == "" && that.form.userpwd == "") {
+        that.eEmpty = true;
+        that.pEmpty = true;
+      } else if (that.form.useremail == "") {
+        that.eEmpty = true;
+        that.pEmpty = false;
       } else {
-        alert("填写不能为空！");
+        that.eEmpty = false;
+        that.pEmpty = true;
       }
     },
     register() {

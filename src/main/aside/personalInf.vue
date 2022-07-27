@@ -32,7 +32,7 @@
         </div>
         <div class="inf">私信</div>
       </div>
-      <div class="clickCss" @click="exitLogin">
+      <div class="clickCss" @click="exitLoginConf">
         <div>
           <i class="el-icon-switch-button"></i>
         </div>
@@ -65,10 +65,25 @@ export default {
       this.changeView("1");
     },
     exitLogin() {
-      this.$router.push({
-        name: "login",
-      });
+      window.sessionStorage.clear();
+      this.$router.replace("/login")
     },
+    exitLoginConf(){
+       this.$confirm('确定退出登录吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(action => {
+          if (action == 'confirm') {
+            this.exitLogin()
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消退出'
+          });          
+        });
+    }
   },
 };
 </script>

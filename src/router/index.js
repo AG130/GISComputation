@@ -13,21 +13,37 @@ const routes = [
     component: login
   },
   {
-    path:'/main/:username',
-    name:'main',
-    component:Main
+    path: '/login',
+    name: login,
+    component: login
   },
   {
-    path:'/personalInf',
-    name:'personalInf',
-    component:PersonalInf
+    path: '/main/:username',
+    name: 'main',
+    component: Main
+  },
+  {
+    path: '/personalInf',
+    name: 'personalInf',
+    component: PersonalInf
   }
 
 ]
 
 const router = new VueRouter({
-  mode:'history',
+  mode: 'history',
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.path == '/login') {
+    return next()
+  };
+  const isLogin = window.sessionStorage.getItem('isLogin');
+  if (isLogin == null) {
+    return next('/login')
+  }
+  next()
 })
 
 export default router
