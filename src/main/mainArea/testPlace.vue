@@ -25,7 +25,7 @@
                 </div>
             </el-dialog>
         </div>
-        <div align="left">
+        <div>
             <el-button @click="addLine" type="primary">新增空白行</el-button>
         </div>
         <div>
