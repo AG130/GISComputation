@@ -256,8 +256,8 @@ export default {
     },
     //地图功能控件->地图定位->地图切换
     conf_chosenMap() {
-      this.$refs.map.changeMap(this.chosenMap)
-      this.chooseMap_vis=false
+      this.$refs.map.changeMap(this.chosenMap);
+      this.chooseMap_vis = false;
     },
     //核酸人员管理->人员录入
     peopleManage() {
