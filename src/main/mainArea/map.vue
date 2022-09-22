@@ -38,6 +38,7 @@ import {
   defaults as defaultControls,
   OverviewMap,
   ZoomSlider,
+  ScaleLine
 } from "ol/control";
 
 export default {
@@ -66,6 +67,7 @@ export default {
   methods: {
     // 地图初始化
     initMap() {
+      //鹰眼
       var OverviewMapControl = new OverviewMap({
         className: "ol-overviewmap ol-custom-overviewmap",
         layers: [
@@ -76,6 +78,7 @@ export default {
         label: "\u00AB",
         collapsed: false,
       });
+      //主地图
       this.map = new Map({
         target: "mapDiv",
         layers: [
@@ -93,7 +96,12 @@ export default {
         }),
         controls: defaultControls({ zoom: true }).extend([OverviewMapControl]),
       });
+      //导航条
       this.map.addControl(new ZoomSlider());
+      //比例尺
+      this.map.addControl(new ScaleLine({
+        units:"metric"
+      }))
     },
     // 地图复位
     resetMap() {
@@ -147,8 +155,8 @@ export default {
     //传地图中心点坐标
     sendCood() {
       var mapCenter = this.map.getView().getCenter();
-      mapCenter[0] = mapCenter[0].toFixed(4);
-      mapCenter[1] = mapCenter[1].toFixed(4);
+      mapCenter[0] = parseFloat(mapCenter[0]).toFixed(4);
+      mapCenter[1] = parseFloat(mapCenter[1]).toFixed(4);
       this.$emit("sendCood", mapCenter);
     },
     // 测试函数开始
@@ -239,7 +247,32 @@ export default {
 #mapDiv .ol-zoom-extent {
   top: 280px;
 }
-#mapDiv .ol-custom-overviewmap .ol-overviewmap-box {
-  border: 1px solid red;
-}
+#mapDiv .ol-custom-overviewmap, .ol-custom-overviewmap.ol-uncollapsible {
+            bottom: auto;
+            left: auto;
+            /* 右侧显示 */
+            right: 0;
+            /* 顶部显示 */
+            top: 0;
+        }
+        /* 鹰眼控件展开时控件外框的样式 */
+        .ol-custom-overviewmap:not(.ol-collapsed)  {
+            border: 1px solid black;
+        }
+         /* 鹰眼控件中地图容器样式 */
+        .ol-custom-overviewmap .ol-overviewmap-map {
+            border: none;
+            width: 200px;
+        }
+        /* 鹰眼控件中显示当前窗口中主图区域的边框 */
+        .ol-custom-overviewmap .ol-overviewmap-box {
+            border: 1px solid red;
+        }
+        /* 鹰眼控件展开时其控件按钮图标的样式 */
+        .ol-custom-overviewmap:not(.ol-collapsed) button{
+            bottom: auto;
+            left: auto;
+            right: 1px;
+            top: 1px;
+        }
 </style>

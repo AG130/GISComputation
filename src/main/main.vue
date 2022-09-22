@@ -19,7 +19,9 @@
                 <el-menu-item index="1-3" @click="showLocatePlace"
                   >地图定位</el-menu-item
                 >
-                <el-menu-item index="1-4">切换地理底图</el-menu-item>
+                <el-menu-item index="1-4" @click="chooseMap"
+                  >切换地图</el-menu-item
+                >
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2">
@@ -63,7 +65,9 @@
           <el-header>Header</el-header>
           <!-- 显示区域 -->
           <el-main>
-            <div v-show="this.tab == 0"><Map ref="map" @sendCood="getCood" /></div>
+            <div v-show="this.tab == 0">
+              <Map ref="map" @sendCood="getCood" />
+            </div>
             <div v-show="this.tab == 1"><PInfDetail ref="pInfDetail" /></div>
             <div v-show="this.tab == 2">
               <PeopleManage ref="peopleManage" />
@@ -92,7 +96,7 @@
           </div>
           <div style="text-align: left">
             <h3>经纬度定位</h3>
-            <span>当前经纬度为：{{map_center[0]}},{{map_center[1]}}</span>
+            <span>当前经纬度为：{{ map_center[0] }},{{ map_center[1] }}</span>
             <el-form :model="locatePlace_form">
               <el-form-item label="请输入经度" :label-width="'85px'">
                 <el-input
@@ -110,7 +114,25 @@
           </div>
           <div slot="footer" class="dialog-footer">
             <el-button @click="locatePlace_vis = false">取消</el-button>
-            <el-button @click="locatePlace(10)">确定</el-button>
+            <el-button @click="locatePlace(10)" type="primary">确定</el-button>
+          </div>
+        </el-dialog>
+      </div>
+      <!-- 切换地理底图 -->
+      <div>
+        <el-dialog title="选择要展示的地图" :visible.sync="chooseMap_vis">
+          <el-select v-model="chosenMap" placeholder="选择地图">
+            <el-option
+              v-for="map in choosedMap"
+              :key="map.value"
+              :label="map.label"
+              :value="map.value"
+            >
+            </el-option>
+          </el-select>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="chooseMap_vis = false">取消</el-button>
+            <el-button @click="conf_chosenMap" type="primary">确定</el-button>
           </div>
         </el-dialog>
       </div>
@@ -124,7 +146,7 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="p_s_vis = false">取消</el-button>
-            <el-button @click="conf_p_s">确定</el-button>
+            <el-button @click="conf_p_s" type="primary">确定</el-button>
           </div>
         </el-dialog>
       </div>
@@ -161,7 +183,7 @@ export default {
       username: this.$route.params.username,
       //页面代码
       tab: 0,
-      //定位窗口可视化
+      //定位窗口显示
       locatePlace_vis: false,
       //定位数据表单
       locatePlace_form: {
@@ -169,7 +191,26 @@ export default {
         y: "",
       },
       //地图中心点
-      map_center:"",
+      map_center: "",
+      //地图切换窗口展示
+      chooseMap_vis: false,
+      //地图待选
+      choosedMap: [
+        {
+          value: 0,
+          label: "OSM地图",
+        },
+        {
+          value: 1,
+          label: "天地图矢量地图",
+        },
+        {
+          value: 2,
+          label: "天地图影像地图",
+        },
+      ],
+      //选定地图
+      chosenMap: "",
       //核酸人员搜索可视化
       p_s_vis: false,
       //核酸人员搜索参数表单
@@ -206,8 +247,16 @@ export default {
       this.locatePlace_form.y = "";
     },
     //地图功能控件->地图定位->展示当前地图中心点
-    getCood(msg){
-      this.map_center=msg
+    getCood(msg) {
+      this.map_center = msg;
+    },
+    //地图功能控件->地图定位->显示地图切换窗口
+    chooseMap() {
+      this.chooseMap_vis = true;
+    },
+    //地图功能控件->地图定位->地图切换
+    conf_chosenMap() {
+      alert(this.chosenMap);
     },
     //核酸人员管理->人员录入
     peopleManage() {
