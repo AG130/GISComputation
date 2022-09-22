@@ -20,7 +20,6 @@
                   >地图定位</el-menu-item
                 >
                 <el-menu-item index="1-4">切换地理底图</el-menu-item>
-                <el-menu-item index="1-5">鹰眼开关</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2">
@@ -206,6 +205,7 @@ export default {
       this.locatePlace_form.x = "";
       this.locatePlace_form.y = "";
     },
+    //地图功能控件->地图定位->展示当前地图中心点
     getCood(msg){
       this.map_center=msg
     },

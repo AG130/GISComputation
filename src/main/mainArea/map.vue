@@ -26,7 +26,7 @@
 <script>
 import "ol/ol.css";
 import OSM from "ol/source/OSM";
-import { Map, View, Feature } from "ol";
+import { Map, View, Feature, controls } from "ol";
 import TileLayer from "ol/layer/Tile";
 import { LineString, Point } from "ol/geom";
 import { Style, Fill, Stroke, Circle as sCircle } from "ol/style";
@@ -34,19 +34,29 @@ import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 import MousePosition from "ol/control/MousePosition";
 import { createStringXY } from "ol/coordinate";
+import {
+  defaults as defaultControls,
+  OverviewMap,
+  ZoomSlider,
+} from "ol/control";
 
 export default {
-  inject:['locatePlace_form'],
+  inject: ["locatePlace_form"],
   data() {
     return {
+      //地图框架
       map: null,
+      //初始中心点
       initCenter: [114.612, 30.4604],
+      //初始缩放
       initZoom: 16,
+      //测试数据开始
       line_point: [
         [114.625212, 30.46644],
         [114.619551, 30.466218],
         [114.617589, 30.466121],
       ],
+      //测试数据结束
     };
   },
   mounted() {
@@ -56,6 +66,16 @@ export default {
   methods: {
     // 地图初始化
     initMap() {
+      var OverviewMapControl = new OverviewMap({
+        className: "ol-overviewmap ol-custom-overviewmap",
+        layers: [
+          new TileLayer({
+            source: new OSM(),
+          }),
+        ],
+        label: "\u00AB",
+        collapsed: false,
+      });
       this.map = new Map({
         target: "mapDiv",
         layers: [
@@ -71,8 +91,67 @@ export default {
           // 初始16倍
           zoom: this.initZoom,
         }),
+        controls: defaultControls({ zoom: true }).extend([OverviewMapControl]),
+      });
+      this.map.addControl(new ZoomSlider());
+    },
+    // 地图复位
+    resetMap() {
+      var view = this.map.getView();
+      view.animate({
+        center: this.initCenter,
+        zoom: this.initZoom,
       });
     },
+    // 地图定位
+    locatePlace(id) {
+      var id = id;
+      var view = this.map.getView();
+      switch (id) {
+        // 洪山区
+        case 0:
+          view.animate({
+            center: [114.337837, 30.502241],
+            zoom: 12,
+          });
+          break;
+        // 东湖高新区
+        case 1:
+          view.animate({
+            center: [114.525418, 30.489736],
+            zoom: 12,
+          });
+          break;
+        // 南望山
+        case 2:
+          view.animate({
+            center: [114.395896, 30.521557],
+            zoom: 16,
+          });
+          break;
+        // 未来城
+        case 3:
+          view.animate({
+            center: [114.612, 30.4604],
+            zoom: 16,
+          });
+          break;
+        default:
+          view.animate({
+            center: [this.locatePlace_form.x, this.locatePlace_form.y],
+            zoom: 12,
+          });
+          break;
+      }
+    },
+    //传地图中心点坐标
+    sendCood() {
+      var mapCenter = this.map.getView().getCenter();
+      mapCenter[0] = mapCenter[0].toFixed(4);
+      mapCenter[1] = mapCenter[1].toFixed(4);
+      this.$emit("sendCood", mapCenter);
+    },
+    // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
         coordinateFormat: createStringXY(6),
@@ -124,96 +203,43 @@ export default {
       });
       this.map.addLayer(line);
     },
-    addBuffer() {
-    },
-    // 地图复位
-    resetMap() {
-      var view=this.map.getView();
-      view.animate({
-        center:this.initCenter,
-        zoom:this.initZoom,
-      })
-    },
-    // 地图定位
-    locatePlace(id){
-      var id=id;
-      var view=this.map.getView();
-      switch(id){
-        // 洪山区
-        case 0:
-          view.animate({
-            center:[114.337837,30.502241],
-            zoom:12
-          })
-          break;
-          // 东湖高新区
-        case 1:
-          view.animate({
-            center:[114.525418,30.489736],
-            zoom:12
-          })
-          break;
-          // 南望山
-        case 2:
-          view.animate({
-            center:[114.395896,30.521557],
-            zoom:16
-          })
-          break;
-          // 未来城
-        case 3:
-          view.animate({
-            center:[114.612, 30.4604],
-            zoom:16
-          })
-          break;
-        default:
-          view.animate({
-            center:[this.locatePlace_form.x,this.locatePlace_form.y],
-            zoom:12
-          })
-          break;
-      }
-    },
-    //传地图坐标
-    sendCood(){
-      var mapCenter=this.map.getView().getCenter()
-      mapCenter[0]=mapCenter[0].toFixed(4);
-      mapCenter[1]=mapCenter[1].toFixed(4);
-      this.$emit("sendCood",mapCenter)
-    }
+    addBuffer() {},
+    //测试函数结束
   },
 };
 </script>
  
-<style scoped>
+<style>
 #mapDiv {
   width: 100%;
-  height: 400px;
+  height: 500px;
 }
 
-#mapCon .ol-zoom .ol-zoom-out {
+#mapDiv .ol-zoom .ol-zoom-out {
   margin-top: 204px;
 }
-#mapCon .ol-zoomslider {
+#mapDiv .ol-zoomslider {
   background-color: transparent;
   top: 2.3em;
 }
-#mapCon .ol-touch .ol-zoom .ol-zoom-out {
+#mapDiv .ol-touch .ol-zoom .ol-zoom-out {
   margin-top: 212px;
 }
-#mapCon .ol-touch .ol-zoomslider {
+#mapDiv .ol-touch .ol-zoomslider {
   top: 2.75em;
 }
-#mapCon .ol-zoom-in .ol.has-tooltip:hover[role="tooltip"],
-#mapCon .ol-zoom-in .ol-has-tooltip:focus[role="tooltip"] {
+#mapDiv .ol-zoom-in .ol.has-tooltip:hover[role="tooltip"],
+#mapDiv .ol-zoom-in .ol-has-tooltip:focus[role="tooltip"] {
   top: 3px;
 }
-#mapCon .ol-zoom-out .ol-has-tooltip:hover[role="tooltip"],
-#mapCon .ol-zoon-out .ol-has-out-tooltip:focus[role="tooltip"] {
+#mapDiv .ol-zoom-out .ol-has-tooltip:hover[role="tooltip"],
+#mapDiv .ol-zoon-out .ol-has-out-tooltip:focus[role="tooltip"] {
   top: 232px;
 }
-#mapCon .ol-zoom-extent {
+#mapDiv .ol-zoom-extent {
   top: 280px;
+}
+#mapDiv .ol-custom-overviewmap .ol-overviewmap-box {
+  border: 1px solid red;
 }
 </style>
