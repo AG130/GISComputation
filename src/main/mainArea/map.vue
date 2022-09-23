@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="mapDiv">
+    <div id="mapDiv" ref="mapDiv">
       <div
         id="mouseP"
         style="
@@ -16,14 +16,16 @@
       ></div>
     </div>
     <div>
-      <el-button @click="addPoint()">添加点</el-button>
-      <el-button @click="addLine()">添加线</el-button>
-      <el-button @click="addBuffer()">添加缓冲区</el-button>
+      <el-button @click="addPoint">添加点</el-button>
+      <el-button @click="addLine">添加线</el-button>
+      <el-button @click="addBuffer">添加缓冲区</el-button>
+      <el-button @click="testButtonClick">测试</el-button>
     </div>
   </div>
 </template>
  
 <script>
+import html2canvas from "html2canvas";
 import "ol/ol.css";
 import OSM from "ol/source/OSM";
 import { Map, View, Feature, controls } from "ol";
@@ -165,21 +167,35 @@ export default {
     changeMap(id) {
       switch (id) {
         case 0:
-          alert('1')
+          alert("1");
           //展示OSM地图
           break;
         case 1:
-          
-        alert('2')
+          alert("2");
           //展示天地图矢量地图
           break;
         case 2:
-          
-        alert('3')
+          alert("3");
           //展示天地图影像地图
           break;
       }
     },
+    //地图导出
+    saveMap() {
+      html2canvas(this.$refs.mapDiv,{backgroundColor:null}).then((canvas)=>{
+        this.saveFile(canvas.toDataURL('image/png'),new Date().toLocaleString())
+      })
+    },
+    saveFile(data, filename) {
+      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+      save_link.href = data;
+      save_link.download = filename;
+
+      const event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      save_link.dispatchEvent(event);
+    },
+    
     // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
@@ -233,6 +249,10 @@ export default {
       this.map.addLayer(line);
     },
     addBuffer() {},
+    testButtonClick(){
+      alert('测试开始')
+      alert('测试结束')
+    },
     //测试函数结束
   },
 };

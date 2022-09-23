@@ -33,7 +33,7 @@
                 <el-menu-item index="2-2" @click="showSearchPeople"
                   >未检核酸人员查询</el-menu-item
                 >
-                <el-menu-item index="2-3">人员导出</el-menu-item>
+                <el-menu-item index="2-3" @click="saveMap">地图数据导出</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
 
@@ -141,12 +141,16 @@
         <el-dialog title="未检核酸人员查询" :visible.sync="p_s_vis">
           <el-form :model="p_s_form">
             <el-form-item label="连续未做核酸天数：" :label-width="p_s_width">
-              <el-input v-model="p_s_form.data" autocomplete="off"></el-input>
+              <el-input-number
+                v-model="p_s_form.data"
+                :min="1"
+                :max="31"
+              ></el-input-number>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="p_s_vis = false">取消</el-button>
-            <el-button @click="conf_p_s" type="primary">确定</el-button>
+            <el-button @click="searchP_conf" type="primary">确定</el-button>
           </div>
         </el-dialog>
       </div>
@@ -272,6 +276,20 @@ export default {
         this.p_s_vis = true;
       }
     },
+    //核酸人员管理->未检核酸人员查询->确认查询
+    searchP_conf() {
+      // 查询未检核酸人员
+      alert("查询完成");
+    },
+    //核酸人员管理->地图导出
+    saveMap(){
+      this.$refs.map.saveMap();
+      this.$notify({
+        title:'成功',
+        message:'地图已导出，请查看下载文件',
+        type:'success'
+      })
+    },
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {
       this.tab = 3;
@@ -279,11 +297,6 @@ export default {
     //核酸采样辅助->采样点管理
     testPlaceM() {
       this.tab = 4;
-    },
-    //核酸人员管理->未检核酸人员查询->确认查询
-    conf_p_s() {
-      // 查询未检核酸人员
-      alert("查询完成");
     },
   },
 };
