@@ -6,9 +6,9 @@
         <el-aside width="200px">
           <div class="asideBand">核酸检测助手</div>
           <div class="personalInf"><PersonalInf ref="personalInf" /></div>
-          <el-menu background-color="#66ccff" active-text-color="white">
+          <el-menu background-color="#66ccff" active-text-color="white" unique-opened="true">
             <el-submenu index="1">
-              <template v-slot:title>地图功能控件</template>
+              <template v-slot:title><h3>地图功能控件</h3>></template>
               <el-menu-item-group>
                 <el-menu-item index="1-1" @click="showMap"
                   >地图展示</el-menu-item
@@ -25,7 +25,7 @@
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="2">
-              <template v-slot:title>核酸人员管理</template>
+              <template v-slot:title><h3>核酸人员管理</h3></template>
               <el-menu-item-group>
                 <el-menu-item index="2-1" @click="peopleManage"
                   >人员录入</el-menu-item
@@ -38,7 +38,7 @@
             </el-submenu>
 
             <el-submenu index="3">
-              <template v-slot:title>轨迹分析</template>
+              <template v-slot:title><h3>轨迹分析</h3></template>
               <el-menu-item-group>
                 <el-menu-item index="3-1" @click="showDiagnoseP"
                   >阳性轨迹点</el-menu-item
@@ -49,7 +49,7 @@
             </el-submenu>
 
             <el-submenu index="4">
-              <template v-slot:title>核酸采样辅助</template>
+              <template v-slot:title><h3>核酸采样辅助</h3></template>
               <el-menu-item-group>
                 <el-menu-item index="4-1">现有采样点查询</el-menu-item>
                 <el-menu-item index="4-2" @click="testPlaceM"
