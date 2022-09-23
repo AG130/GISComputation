@@ -6,7 +6,7 @@
         <el-aside width="200px">
           <div class="asideBand">核酸检测助手</div>
           <div class="personalInf"><PersonalInf ref="personalInf" /></div>
-          <el-menu background-color="#66ccff" active-text-color="white" unique-opened="true">
+          <el-menu background-color="#66ccff" active-text-color="white" :unique-opened=true>
             <el-submenu index="1">
               <template v-slot:title><h3>地图功能控件</h3>></template>
               <el-menu-item-group>
