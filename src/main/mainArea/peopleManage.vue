@@ -1,10 +1,12 @@
 <template>
   <div>
-    <div align="left">
-      <el-button @click="addLine" type="primary">新增</el-button>
-    </div>
+    <!-- 人员管理表格 -->
     <div>
-      <el-table :data="db_p_info">
+      <el-table
+        :data="
+          db_p_info.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+        "
+      >
         <el-table-column
           property="id"
           label="序号"
@@ -50,8 +52,7 @@
           label="结果"
           width="100"
         ></el-table-column>
-        <el-table-column fixed="right"
-        label="操作" width="145">
+        <el-table-column fixed="right" label="操作" width="145">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
               >编辑</el-button
@@ -66,7 +67,29 @@
         </el-table-column>
       </el-table>
     </div>
-
+    <!-- 分页实现 -->
+    <div align="right" style="line-height: 22px">
+      <div style="display: inline-block">
+        <el-button @click="addNewPInfo" type="primary" size="mini"
+          >新增</el-button
+        >
+      </div>
+      <div style="display: inline-block">
+        <el-pagination
+          style="margin: 10px 0px"
+          background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[1, 5, 10, 20, 40]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="db_p_info.length"
+        >
+        </el-pagination>
+      </div>
+    </div>
+    <!-- 新增信息弹窗 -->
     <div>
       <el-dialog title="核酸人员录入" :visible.sync="new_p_input_vis">
         <el-form :model="new_p_form">
@@ -104,10 +127,15 @@
             ></el-input>
           </el-form-item>
           <el-form-item label="核酸结果" :label-width="p_form_width">
-            <el-input
-              v-model="new_p_form.testResult"
-              auto-complete="off"
-            ></el-input>
+            <el-select v-model="new_p_form.testResult" placeholder="结果">
+              <el-option
+                v-for="i in testResult"
+                :key="i.value"
+                :label="i.label"
+                :value="i.label"
+              >
+              </el-option
+            ></el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -116,9 +144,9 @@
         </div>
       </el-dialog>
     </div>
-
+    <!-- 修改信息弹窗 -->
     <div>
-      <el-dialog title="核酸人员录入" :visible.sync="dialogFormVisible">
+      <el-dialog title="核酸人员录入" :visible.sync="changePInfo_vis">
         <el-form :model="p_form">
           <el-form-item label="序号" :label-width="p_form_width">
             <el-input v-model="p_form.id" auto-complete="off"></el-input>
@@ -145,10 +173,15 @@
             <el-input v-model="p_form.testData" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="核酸结果" :label-width="p_form_width">
-            <el-input
-              v-model="p_form.testResult"
-              auto-complete="off"
-            ></el-input>
+            <el-select v-model="p_form.testResult" placeholder="结果">
+              <el-option
+                v-for="i in testResult"
+                :key="i.value"
+                :label="i.label"
+                :value="i.label"
+              >
+              </el-option
+            ></el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -164,6 +197,7 @@
 export default {
   data() {
     return {
+      //人员信息表
       db_p_info: [
         {
           id: 1,
@@ -188,19 +222,13 @@ export default {
           testResult: "阴性",
         },
       ],
+      //新增信息窗口可视
       new_p_input_vis: false,
-      dialogFormVisible: false,
-      p_form: {
-        id: "",
-        name: "",
-        p_id: "",
-        p_address: "",
-        x: "",
-        y: "",
-        p_phone: "",
-        testData: "",
-        testResult: "",
-      },
+      //修改信息窗口可视
+      changePInfo_vis: false,
+      //修改行对应号
+      changePInfo_row: 0,
+      //新增人员信息
       new_p_form: {
         id: "",
         name: "",
@@ -212,24 +240,55 @@ export default {
         testData: "",
         testResult: "",
       },
+      //修改人员信息
+      p_form: {
+        id: "",
+        name: "",
+        p_id: "",
+        p_address: "",
+        x: "",
+        y: "",
+        p_phone: "",
+        testData: "",
+        testResult: "",
+      },
+      testResult: [
+        {
+          value: 0,
+          label: "阴性",
+        },
+        {
+          value: 1,
+          label: "阳性",
+        },
+      ],
+      //行宽
       p_form_width: "120px",
+      //分页有关（start）
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      //分页有关（end）
     };
   },
   methods: {
-    addLine() {
+    //新增人员信息
+    addNewPInfo() {
       this.new_p_input_vis = true;
     },
     // 编辑
     handleEdit(index, row) {
-      this.dialogFormVisible = true;
+      this.changePInfo_vis = true;
       this.p_form = Object.assign({}, row);
+      this.changePInfo_row = row;
     },
     // 删除行
     handleDelete(index, row) {
       this.db_p_info.splice(index, 1);
     },
+    //取消修改
     cancel_p_input() {
-      this.dialogFormVisible = false;
+      this.changePInfo_vis = false;
       this.p_form.id = "";
       this.p_form.name = "";
       this.p_form.p_id = "";
@@ -240,9 +299,13 @@ export default {
       this.p_form.testData = "";
       this.p_form.testResult = "";
     },
+    //确认修改
     conf_p_input() {
-      this.dialogFormVisible = false;
+      //依据changePInfo_row(即id)修改数据库中对应内容
+      //用户所填内容存于p_form中
+      this.changePInfo_vis = false;
     },
+    //取消新增
     cancel_new_p_input() {
       this.new_p_input_vis = false;
       this.new_p_form.id = "";
@@ -255,6 +318,7 @@ export default {
       this.new_p_form.testData = "";
       this.new_p_form.testResult = "";
     },
+    //确认新增
     conf_new_p_input() {
       let row = {
         id: this.new_p_form.id,
@@ -270,6 +334,14 @@ export default {
       this.db_p_info.push(row);
       this.new_p_input_vis = false;
     },
+    //分页有关（start）
+    handleSizeChange(size) {
+      this.pageSize = size;
+    },
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+    },
+    //分页有关（end）
   },
 };
 </script>
