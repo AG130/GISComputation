@@ -5,12 +5,13 @@
         <div class="big-contain" key="bigContainLogin" v-if="isLogin">
           <div class="btitle">账户登录</div>
           <div class="bform">
-            <input type="email" placeholder="邮箱" v-model="form.useremail" />
+            <input type="email" placeholder="用户名" v-model="form.useremail" />
             <span class="errTips" v-if="eEmpty">* 邮箱不能为空！ *</span>
             <input type="password" placeholder="密码" v-model="form.userpwd" />
             <span class="errTips" v-if="pEmpty">* 密码不能为空！ *</span>
           </div>
           <button class="bbutton" @click="login">登录</button>
+          <el-button @click="jump">跳转测试</el-button>
         </div>
         <div class="big-contain" key="bigContainRegister" v-else>
           <div class="btitle">创建账户</div>
@@ -56,6 +57,13 @@ export default {
     };
   },
   methods: {
+    jump() {
+      window.sessionStorage.setItem("isLogin", "true"); //登陆成功
+      this.$router.push({
+        name: "main",
+        params: { username: this.form.useremail },
+      });
+    },
     changeType() {
       this.isLogin = !this.isLogin;
       this.form.username = "";
@@ -67,11 +75,34 @@ export default {
       if (that.form.useremail != "" && that.form.userpwd != "") {
         that.eEmpty = false;
         that.pEmpty = false;
-        window.sessionStorage.setItem("isLogin", "true");
-        that.$router.push({
-          name: "main",
-          params: { username: this.form.useremail },
+
+        $.ajax({
+          url: "/api/index.html/",
+          type: "GET",
+          dataType: "json",
+          data: { username: that.form.useremail, password: that.form.userpwd },
+
+          success: function (dat) {
+            var jsonData = JSON.stringify(dat); // 转成JSON格式
+            // alert(jsonData);
+            alert(dat.result);
+            if (dat.result == "success") {
+              window.sessionStorage.setItem("isLogin", "true"); //登陆成功
+              that.$router.push({
+                name: "main",
+                params: { username: that.form.useremail },
+              });
+            } else {
+              alert("fail");
+            }
+          },
         });
+
+        // window.sessionStorage.setItem("isLogin", "true");//登陆成功
+        // that.$router.push({
+        //   name: "main",
+        //   params: { username: this.form.useremail },
+        // });
       } else if (that.form.useremail == "" && that.form.userpwd == "") {
         that.eEmpty = true;
         that.pEmpty = true;
@@ -83,6 +114,7 @@ export default {
         that.pEmpty = true;
       }
     },
+
     register() {
       const that = this;
       if (
@@ -90,6 +122,33 @@ export default {
         that.form.useremail != "" &&
         that.form.userpwd != ""
       ) {
+        //ajax register
+        $.ajax({
+          url: "/api/register.html/",
+          type: "GET",
+          dataType: "json",
+          data: {
+            username: that.form.username,
+            useremail: that.form.useremail,
+            password: that.form.userpwd,
+          },
+
+          success: function (dat) {
+            var jsonData = JSON.stringify(dat); // 转成JSON格式
+            // alert(jsonData);
+            alert(dat.result);
+
+            if (dat.result == "可以注册") {
+              window.sessionStorage.setItem("isLogin", "true"); //登陆成功
+              that.$router.push({
+                name: "main",
+                params: { username: that.form.useremail },
+              });
+            } else {
+              alert("用户名已存在或其它问题");
+            }
+          },
+        });
       } else {
         alert("填写不能为空！");
       }

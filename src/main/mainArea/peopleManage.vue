@@ -271,8 +271,70 @@ export default {
       //分页有关（end）
     };
   },
+
+  mounted() {
+    this.people_input();
+  },
+
   methods: {
     //新增人员信息
+    people_input(){
+      const self=this;
+      $.ajax({
+        url: '/api/all_post_type_value/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'type': "id", 'value': "1"},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+
+          // {#前端收到的json是这个：#}
+          // {#{'code': 0, 'msg': '', 'data': [{'id': 1, #}
+          //   {#                    'name': '路人甲', 'sex': '男', 'id_card': '140098098', #}
+          //   {#                    'checkdata': '20191989',sult': '阳性', 'responsibilityman': '负责人1', ' +#}
+          //   {#                        ''lon': 100.111, 'lat': 79.999}], 'count': 1}#}
+
+          for (var i=0;i<dat.result.data.length;i++) {
+
+            // alert(dat.result.data[i].name);
+            // var will_add_lon = dat.result.data[i].lon
+            // alert(will_add_lon)
+            // var will_add_lat = dat.result.data[i].lat
+            // var manindex = '性别：' + dat.result.data[i].sex + '检测日期：' + dat.result.data[i].checkdata
+
+            var will_append={
+              id:dat.result.data[i].id,
+              name:dat.result.data[i].name,
+              p_id:dat.result.data[i].id_card,
+              p_address:dat.result.data[i].address,
+              x:dat.result.data[i].lon,
+              y:dat.result.data[i].lat,
+              p_phone:dat.result.data[i].phone,
+              testData:dat.result.data[i].checkdata,
+              testResult:dat.result.data[i].result,
+
+
+            }
+            // id:'1',
+            //     name:'张三',
+            //     p_id:'320410200104011234',
+            //     p_address:"中国地质大学未来城校区",
+            //     x:'114.624',
+            //     y:'30.4634',
+            //     p_phone:'12300001234',
+            //     testData:'2022-04-01',
+            //     testResult:'阴性'
+            self.db_p_info.push(will_append)
+          }
+        },
+        error: function () {
+          alert('服务器超时，请重试！');
+        }
+      })
+    },
+
     addNewPInfo() {
       this.new_p_input_vis = true;
     },
@@ -284,6 +346,19 @@ export default {
     },
     // 删除行
     handleDelete(index, row) {
+      const selfff=this;
+      $.ajax({
+        url: '/api/delete_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'value': selfff.db_p_info[index].p_id},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          alert("删除成功")
+        }
+      })
+
       this.db_p_info.splice(index, 1);
     },
     //取消修改
@@ -303,7 +378,121 @@ export default {
     conf_p_input() {
       //依据changePInfo_row(即id)修改数据库中对应内容
       //用户所填内容存于p_form中
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "name", 'value': this.p_form.name},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "id_card", 'value': this.p_form.p_id},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "address", 'value': this.p_form.p_address},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "lon", 'value': this.p_form.x},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "lat", 'value': this.p_form.y},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "phone", 'value': this.p_form.p_phone},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "checkdata", 'value': this.p_form.testData},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
+      $.ajax({
+        url: '/api/change_from_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'id': this.p_form.id, 'type': "result", 'value': this.p_form.testResult},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          // alert(jsonData);
+          // alert(dat.result);
+
+        }
+      })
+
       this.changePInfo_vis = false;
+
     },
     //取消新增
     cancel_new_p_input() {
@@ -332,6 +521,29 @@ export default {
         testResult: this.new_p_form.testResult,
       };
       this.db_p_info.push(row);
+
+      $.ajax({
+        url: '/api/add_to_db/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'value':
+              [
+                {'name': row.name, 'sex': ' ',
+                  'id_card': row.p_id, 'checkdata': row.testData,
+                  'result': row.testResult, 'responsibilityman': ' ',
+                  'lon': row.x, 'lat': row.y ,'phone':row.p_phone,
+                  'address':row.p_address},
+              ]
+        }
+
+        ,
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          alert("success")
+        },
+
+      })
+
       this.new_p_input_vis = false;
     },
     //分页有关（start）
