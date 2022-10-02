@@ -277,7 +277,7 @@ export default {
   },
 
   methods: {
-    //新增人员信息
+    //人员信息表初始化
     people_input(){
       const self=this;
       $.ajax({
@@ -334,7 +334,7 @@ export default {
         }
       })
     },
-
+    //新增人员信息
     addNewPInfo() {
       this.new_p_input_vis = true;
     },

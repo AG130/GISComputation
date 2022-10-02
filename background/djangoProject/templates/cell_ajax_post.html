@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js">
+</script>
+</head>
+<body>
+<script type="text/javascript">
+$.ajax({
+    url: '/post_type_value',
+    type: 'GET',
+    dataType: 'json',
+    data:{'type':"id",'value':"1" },
+    success:function(dat){
+        var jsonData = JSON.stringify(dat);// 转成JSON格式
+        alert(jsonData);
+        document.body.innerText = jsonData;
+    },
+    error:function(){
+        alert('服务器超时，请重试！');
+    }
+})
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if error_message %}
+    <script type="text/javascript">
+        alert("{{ error_message}}");
+        window.location.href = "/first_welcome/register.html";
+    </script>
+{% elif success %}
+    <script type="text/javascript">
+        alert("注册成功，请登录！");
+        window.location.href = "/first_welcome/index.html";
+    </script>
+{% endif %}
+<form action="." method="post" id="login">{% csrf_token %}
+    <input type="text" name="username" placeholder="请输入用户名"><br>
+    <input type="password" name="password" placeholder="请输入密码"><br>
+     <input type="password" name="password2" placeholder="请再次输入密码"><br>
+
+    <input type="submit" value="注册">
+</form>
+</body>
+</html>

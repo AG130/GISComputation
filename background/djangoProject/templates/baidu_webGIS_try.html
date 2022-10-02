@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>添加点标记</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <style>
+    body,
+    html,
+    #container {
+        overflow: hidden;
+        width: 100%;
+        height: 90%;
+        margin: 0;
+        font-family: "微软雅黑";
+    }
+    </style>
+    <script src="http://api.map.baidu.com/api?type=webgl&v=1.0&ak=GR8apOYEDvhtKE9hdd49cgjCHOdCdG0X"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+
+</head>
+<body>
+    <div id="container"></div>
+    <button type="button" onclick="alert('你好，世界!')">你好，世界!</button></body>
+    <button type="button" onclick="func_try_overlay_try()">overlay_try</button></body>
+    <button type="button" onclick="func_ajax_explore()">ajax_explore</button></body>
+    <button type="button" onclick="func_ajax_add()">ajax_add</button></body>
+    <button type="button" onclick="func_ajax_change()">ajax_change</button></body>
+    <button type="button" onclick="func_ajax_delete()">ajax_delete</button></body>
+    <button type="button" onclick="func_ajax_stay_point_try()">ajax_stay_points</button></body>
+    <button type="button" onclick="func_show_line()">func_show_line</button></body>
+    <button type="button" onclick="func_cluster_try()">func_cluster</button></body>
+</html>
+<script>
+var map = new BMapGL.Map('container');
+map.centerAndZoom(new BMapGL.Point(114.408655,30.525749), 15);
+map.enableScrollWheelZoom(true);
+// 创建点标记
+var marker1 = new BMapGL.Marker(new BMapGL.Point(114.4086,30.5257));
+
+var point = new BMapGL.Point(114.4086,30.5257)
+
+// 在地图上添加点标记
+map.addOverlay(marker1);
+
+var opts = {
+    width: 200,
+    height: 100,
+    title: '黄焖鸡'
+};
+var infoWindow = new BMapGL.InfoWindow('地址：美食城8楼 ', opts);
+// 点标记添加点击事件
+marker1.addEventListener('click', function () {
+    map.openInfoWindow(infoWindow, point); // 开启信息窗口
+});
+    data_points=[]
+
+    function func_try_overlay_try(){
+        var marker_try= new BMapGL.Marker(new BMapGL.Point(114.409,30.526));
+        map.addOverlay(marker_try);
+        map.removeOverlay(marker1);
+        map.clearOverlays();
+    }
+
+    function func_ajax_explore() {
+        $.ajax({
+            url: '/post_type_value',
+            type: 'GET',
+            dataType: 'json',
+            data: {'type': "id", 'value': "1"},
+            success: function (dat) {
+                map.clearOverlays()
+                var jsonData = JSON.stringify(dat);// 转成JSON格式
+                alert(jsonData);
+
+                {#前端收到的json是这个：#}
+                {#{'code': 0, 'msg': '', 'data': [{'id': 1, #}
+{#                    'name': '路人甲', 'sex': '男', 'id_card': '140098098', #}
+{#                    'checkdata': '20191989',sult': '阳性', 'responsibilityman': '负责人1', ' +#}
+{#                        ''lon': 100.111, 'lat': 79.999}], 'count': 1}#}
+
+                for (i=0;i<dat.result.data.length;i++) {
+
+                    alert(dat.result.data[i].name);
+                    var will_add_lon = dat.result.data[i].lon
+                    alert(will_add_lon)
+                    var will_add_lat = dat.result.data[i].lat
+                    var explore_point = new BMapGL.Point(will_add_lon, will_add_lat)
+                    var marker_add_explore = new BMapGL.Marker(explore_point)
+                    map.addOverlay(marker_add_explore);
+                    var opts = {
+                        width: 200,
+                        height: 300,
+
+                        title: dat.result.data[i].name
+                    };
+                    var manindex = '性别：' + dat.result.data[i].sex + '检测日期：' + dat.result.data[i].checkdata
+                    var infoWindow = new BMapGL.InfoWindow(manindex, opts);
+                    // 点标记添加点击事件
+                    marker_add_explore.addEventListener('click', function () {
+                        map.openInfoWindow(infoWindow, explore_point); // 开启信息窗口
+                    });
+                }
+              },
+            error: function () {
+                alert('服务器超时，请重试！');
+            }
+        })
+    }
+
+    function func_ajax_add() {
+        $.ajax({
+            url: '/add_to_db',
+            type: 'GET',
+            dataType: 'json',
+            data: {'value':
+                    [
+                        {'name': '路人乙', 'sex': '女',
+                    'id_card': '17098098', 'checkdata': '206251989',
+                    'result': '阳性', 'responsibilityman': '负责人2',
+                    'lon': '114.408', 'lat': '30.53'},
+                        ]
+                    }
+
+            ,
+            success: function (dat) {
+                var jsonData = JSON.stringify(dat);// 转成JSON格式
+                alert(jsonData);
+                alert(dat.result);
+
+            },
+
+        })
+    }
+
+    function func_ajax_change() {
+        $.ajax({
+            url: '/change_from_db',
+            type: 'GET',
+            dataType: 'json',
+            data: {'id': "3", 'type': "sex", 'value': "已更改"},
+
+            success: function (dat) {
+                var jsonData = JSON.stringify(dat);// 转成JSON格式
+                alert(jsonData);
+                alert(dat.result);
+
+            }
+        })
+    }
+
+    function func_ajax_delete(){
+                $.ajax({
+            url: '/delete_from_db',
+            type: 'GET',
+            dataType: 'json',
+            data: {'value': "5"},
+
+            success: function (dat) {
+                var jsonData = JSON.stringify(dat);// 转成JSON格式
+                alert(jsonData);
+                alert(dat.result);
+
+            }
+        })
+
+    }
+
+    function func_ajax_stay_point_try() {
+        $.ajax({
+                url: '/api_stay_points_return/',
+                type: 'GET',
+                dataType: 'json',
+                data: {'id': 1, 'dist_th': 200 ,'time_th':500},
+                success: function (dat) {
+                    var jsonData = JSON.stringify(dat);// 转成JSON格式
+                    alert(jsonData);
+
+                    var count_points=dat.result.count
+                    var lat_i=dat.result.data[i].points[0].lat
+                    var lng_i=dat.result.data[i].points[0].lng
+                }
+            }
+        )
+    }
+
+    function  func_show_line(){
+        map.centerAndZoom(new BMapGL.Point(114.118347,22.57485), 15);
+	    map.enableScrollWheelZoom();
+	    var polyline = new BMapGL.Polyline([
+new BMapGL.Point(114.12989410110852,22.578502132480423),
+new BMapGL.Point(114.12989410110852,22.578502132480423),
+new BMapGL.Point(114.12984765326267,22.577953166716014),
+new BMapGL.Point(114.12983236374077,22.577619134228925),
+new BMapGL.Point(114.13124300763788,22.577478525817995),
+new BMapGL.Point(114.1332395706493,22.57728297671101),
+new BMapGL.Point(114.13403940817676,22.57537739243824),
+new BMapGL.Point(114.13457333209656,22.57548907794531),
+new BMapGL.Point(114.13572534098861,22.5757779274155),
+new BMapGL.Point(114.1357553359509,22.57577764544294),
+new BMapGL.Point(114.1361757429018,22.576258754291622),
+new BMapGL.Point(114.13567309210315,22.57762995248873),
+new BMapGL.Point(114.13498066858257,22.579236661723282),
+new BMapGL.Point(114.13484404885347,22.57963795731949),
+new BMapGL.Point(114.13644630546817,22.580274212571315),
+new BMapGL.Point(114.13714837436147,22.58038101777839),
+new BMapGL.Point(114.13992621128418,22.580798661663252),
+new BMapGL.Point(114.14064355278121,22.580890345461597),
+new BMapGL.Point(114.14336895142954,22.58078557078518),
+new BMapGL.Point(114.14663561846467,22.579648833974073),
+new BMapGL.Point(114.14945279462152,22.578934209475303),
+new BMapGL.Point(114.14913266403119,22.57917205616293),
+new BMapGL.Point(114.14726948012239,22.57997210533399),
+new BMapGL.Point(114.14733195279322,22.581737508511086),
+new BMapGL.Point(114.14656898921217,22.582735790645525),
+new BMapGL.Point(114.1462177021493,22.582773700891728),
+new BMapGL.Point(114.14623371612431,22.582773433179614),
+new BMapGL.Point(114.1462177145007,22.582790705067406),
+new BMapGL.Point(114.14623372847574,22.582790437355285),
+new BMapGL.Point(114.14624874159244,22.582790186257665),
+new BMapGL.Point(114.14624872924097,22.582773182081997),
+new BMapGL.Point(114.14630175242077,22.582740286096417),
+new BMapGL.Point(114.14638576511145,22.582654854941186),
+new BMapGL.Point(114.14638575193447,22.582636850503565),
+new BMapGL.Point(114.14635575106126,22.582672363276878),
+new BMapGL.Point(114.14633274321749,22.582689753671612),
+new BMapGL.Point(114.14631775336774,22.58272201327965),
+new BMapGL.Point(114.14630173930597,22.582722281669053),
+new BMapGL.Point(114.14628672613803,22.58272253316729),
+new BMapGL.Point(114.1462717260993,22.5827407889797),
+new BMapGL.Point(114.14624870595893,22.582741174216558),
+new BMapGL.Point(114.146233703761,22.582756429001964),
+new BMapGL.Point(114.14620270141424,22.582790955929855),
+new BMapGL.Point(114.14548515284817,22.58288483169432),
+new BMapGL.Point(114.1429204513242,22.58314290251173),
+new BMapGL.Point(114.14197974362831,22.581590158338297),
+new BMapGL.Point(114.13820907119043,22.581138540551756),
+new BMapGL.Point(114.12868392214047,22.580307808381484),
+new BMapGL.Point(114.12696907424731,22.580293305493218),
+new BMapGL.Point(114.11702343383541,22.577540975387638),
+new BMapGL.Point(114.11181819845125,22.574387260111862),
+new BMapGL.Point(114.09837329524126,22.569634157108435),
+new BMapGL.Point(114.08013716214938,22.527068595777177),
+new BMapGL.Point(114.07910851248101,22.527638501462356),
+new BMapGL.Point(114.079237617786,22.530042049476815),
+new BMapGL.Point(114.08058600266716,22.53335848219339),
+new BMapGL.Point(114.08411086511484,22.534725448294964),
+new BMapGL.Point(114.08534389382999,22.53474489636706),
+new BMapGL.Point(114.09053228991274,22.537567912194724),
+new BMapGL.Point(114.09279143042619,22.540124271454555),
+new BMapGL.Point(114.09740614323604,22.54052890959369),
+new BMapGL.Point(114.10195929080186,22.541059542599875),
+new BMapGL.Point(114.10695386609052,22.54137754046344),
+new BMapGL.Point(114.11125687719614,22.541438475541362),
+new BMapGL.Point(114.11484656692737,22.541578471239955),
+new BMapGL.Point(114.1181338813621,22.542924967131718),
+new BMapGL.Point(114.11830307404414,22.546226656152555),
+new BMapGL.Point(114.11895082432123,22.548462415664904),
+new BMapGL.Point(114.12327574291628,22.549166691572307),
+new BMapGL.Point(114.12755630551838,22.549784022309996),
+new BMapGL.Point(114.12841836250826,22.54995013779997),
+new BMapGL.Point(114.12847134981476,22.55001701017561),
+new BMapGL.Point(114.12873807995001,22.550065266699217),
+new BMapGL.Point(114.13239736827539,22.550664179953216),
+new BMapGL.Point(114.13634847965655,22.551247872574226),
+new BMapGL.Point(114.13716455318841,22.5513735133326),
+new BMapGL.Point(114.13751564282494,22.551468757048372),
+new BMapGL.Point(114.13763507393125,22.556486696427925),
+new BMapGL.Point(114.13905646928427,22.55868786831718),
+new BMapGL.Point(114.14085760120126,22.559198973514118),
+new BMapGL.Point(114.14272729829986,22.55792026090075),
+new BMapGL.Point(114.1443234057336,22.558930267866543),
+new BMapGL.Point(114.14543293632887,22.560530976883022),
+new BMapGL.Point(114.14653349405539,22.56204416513256),
+new BMapGL.Point(114.15025913953306,22.567480976580878),
+new BMapGL.Point(114.14989312492528,22.56875508963869),
+new BMapGL.Point(114.14855938865871,22.5712479211963),
+new BMapGL.Point(114.14951611690567,22.572913260883233),
+new BMapGL.Point(114.14938160499197,22.575548504493394),
+new BMapGL.Point(114.15046844522988,22.578430492858253),
+new BMapGL.Point(114.1482540346852,22.57948780473012),
+new BMapGL.Point(114.14733140575862,22.581037330254677),
+new BMapGL.Point(114.1473864692006,22.582352729789452),
+new BMapGL.Point(114.14741673263076,22.58267128978477),
+new BMapGL.Point(114.14835729497516,22.583570070292744),
+new BMapGL.Point(114.14848739285117,22.585035126262504),
+new BMapGL.Point(114.14819079005865,22.586190642011772),
+new BMapGL.Point(114.14819078026811,22.58617363826925),
+new BMapGL.Point(114.14807564866872,22.58614365706317),
+new BMapGL.Point(114.14810669756557,22.58617511856729),
+new BMapGL.Point(114.14786948572144,22.58621328640734),
+new BMapGL.Point(114.1478394284217,22.586164800521303),
+new BMapGL.Point(114.14793852458128,22.586163066866966),
+new BMapGL.Point(114.14809183503783,22.58644244110663),
+new BMapGL.Point(114.14790852360298,22.58621260345197),
+new BMapGL.Point(114.14828981974138,22.58607086754966),
+new BMapGL.Point(114.14830492182512,22.586221635561664),
+new BMapGL.Point(114.14795354784448,22.58617780712661),
+new BMapGL.Point(114.14817574700824,22.586141895775206),
+new BMapGL.Point(114.14812173187514,22.586208861929553),
+new BMapGL.Point(114.14810671713262,22.58620912605008),
+new BMapGL.Point(114.14803767813969,22.586260350762142),
+new BMapGL.Point(114.1480757153774,22.586259682584416),
+new BMapGL.Point(114.14815276237873,22.586208315779135),
+new BMapGL.Point(114.14817576547397,22.58617390282619),
+new BMapGL.Point(114.1480916926247,22.58619238633505),
+new BMapGL.Point(114.14822080988989,22.58617310887219),
+new BMapGL.Point(114.14835895651055,22.586187672556587),
+new BMapGL.Point(114.14828989775665,22.586205897314517),
+new BMapGL.Point(114.14822081968055,22.5861901126147),
+new BMapGL.Point(114.14823683549707,22.586189830115543),
+new BMapGL.Point(114.14813677530626,22.58625860870127),
+new BMapGL.Point(114.14828987818836,22.586171889831803),
+new BMapGL.Point(114.14825886704271,22.586206445244848),
+new BMapGL.Point(114.14820582383084,22.58622338461873),
+new BMapGL.Point(114.14827484485464,22.58614014795835),
+new BMapGL.Point(114.1480916926247,22.58619238633505),
+new BMapGL.Point(114.14825883882449,22.586157434457995),
+new BMapGL.Point(114.14825884747461,22.58617243776212),
+new BMapGL.Point(114.14832089048244,22.586139334451442),
+new BMapGL.Point(114.14828984989222,22.586122879031752),
+new BMapGL.Point(114.14820579507344,22.586173373617868),
+new BMapGL.Point(114.14820578642346,22.586158370313736),
+new BMapGL.Point(114.14832084178063,22.586055315904158),
+new BMapGL.Point(114.14812175081516,22.586241869183468),
+new BMapGL.Point(114.14820583358177,22.58624038835449),
+new BMapGL.Point(114.14815283783426,22.586340344742702),
+new BMapGL.Point(114.14807580127102,22.58641071564546),
+new BMapGL.Point(114.14807582891395,22.586459726334706),
+new BMapGL.Point(114.14827489207907,22.586222166010113),
+new BMapGL.Point(114.14832090029878,22.58615633819825),
+new BMapGL.Point(114.14828981974138,22.58607086754966),
+new BMapGL.Point(114.14819075197289,22.58612462746914),
+new BMapGL.Point(114.14812188309264,22.58647492015331),
+new BMapGL.Point(114.14822080123987,22.586158105568057),
+new BMapGL.Point(114.1482057766075,22.5861413665669),
+new BMapGL.Point(114.14820581464116,22.586207381100614),
+new BMapGL.Point(114.14828988797926,22.586188893574302),
+new BMapGL.Point(114.14827486332099,22.586172155009294),
+new BMapGL.Point(114.14799179269957,22.586543220379994),
+new BMapGL.Point(114.14486985152347,22.588164016973728),
+new BMapGL.Point(114.14380101459618,22.588079762406473),
+new BMapGL.Point(114.1410985345427,22.588270011103884),
+new BMapGL.Point(114.13946567271356,22.58995860318526),
+new BMapGL.Point(114.13795596784529,22.59162677068084),
+new BMapGL.Point(114.13582074400543,22.594847407991804),
+new BMapGL.Point(114.13250300547477,22.595009959520073),
+new BMapGL.Point(114.1312368745392,22.595017438014374),
+new BMapGL.Point(114.1312909770361,22.596615369067912),
+new BMapGL.Point(114.13119193818756,22.59975025538432),
+new BMapGL.Point(114.13112299631536,22.5997176132273),
+new BMapGL.Point(114.13078699540158,22.60140246413333),
+new BMapGL.Point(114.1295057197347,22.603241083893632),
+new BMapGL.Point(114.12875923571141,22.60412860701579),
+new BMapGL.Point(114.12717334503304,22.606297166062344),
+new BMapGL.Point(114.12998349963925,22.609373481452582),
+new BMapGL.Point(114.13351276660954,22.611354064140258),
+new BMapGL.Point(114.13741640269902,22.613549353279954),
+new BMapGL.Point(114.14539385291215,22.620857556348636),
+new BMapGL.Point(114.14537881097964,22.620889799742287),
+new BMapGL.Point(114.14552371342214,22.621122423588073),
+new BMapGL.Point(114.14802522970714,22.624012794579798),
+new BMapGL.Point(114.14839119536781,22.62442231848349),
+new BMapGL.Point(114.14837618030883,22.624422584374063),
+new BMapGL.Point(114.14882630163387,22.624763555523856),
+new BMapGL.Point(114.14775423310901,22.627901336798537),
+new BMapGL.Point(114.14976810212723,22.63016527643649),
+new BMapGL.Point(114.15108917753487,22.630521890249437),
+new BMapGL.Point(114.15117358074752,22.630189329299093),
+new BMapGL.Point(114.15152645605595,22.628614795091014),
+new BMapGL.Point(114.15164180686733,22.62837963984591),
+new BMapGL.Point(114.15170988288794,22.628378359627227),
+new BMapGL.Point(114.15162580523948,22.62836294142458),
+new BMapGL.Point(114.15128946509336,22.629385199283668),
+new BMapGL.Point(114.15112066411112,22.63003932348348),
+new BMapGL.Point(114.15056946666502,22.630682536279174),
+new BMapGL.Point(114.14309211970479,22.625160327775095),
+new BMapGL.Point(114.1419855859208,22.624008529250965),
+new BMapGL.Point(114.14042258601069,22.622214008432806),
+new BMapGL.Point(114.13783855549357,22.619428550517966),
+new BMapGL.Point(114.13452991444215,22.617177953719793),
+new BMapGL.Point(114.13434707370374,22.61706346774048),
+new BMapGL.Point(114.13420920793824,22.61696358999163),
+new BMapGL.Point(114.13155011931963,22.615197838592653),
+new BMapGL.Point(114.13094722202524,22.61565204463387),
+new BMapGL.Point(114.13014655171844,22.616105772430984),
+new BMapGL.Point(114.13111528872098,22.615401187858613),
+new BMapGL.Point(114.13151218601159,22.615149051853898),
+new BMapGL.Point(114.13152716153074,22.615165967867917),
+new BMapGL.Point(114.1315501447552,22.615165839043083),
+
+	    ], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+	    map.addOverlay(polyline);   //增加折线
+
+    }
+
+    function object2Geojson(data) {
+        //坐标数组 [{},{}] 转geojson
+        var featureCollection = { "type": "FeatureCollection" };
+    	var features = new Array();
+
+    	for (let i = 0; i < data.length; i++) {
+    	var feature = { "type": "Feature" };
+    	feature.properties = data[i];
+    	var geometry = { "type": "Point" };
+    	geometry.coordinates = [data[i].LON, data[i].LAT];
+    	feature.geometry = geometry;
+    	features.push(feature);
+    	}
+
+    	featureCollection.features = features;
+    	return featureCollection;
+    }
+
+    function func_cluster(data) {
+        var options = {numberOfClusters: 4};
+        var clustered = turf.clustersKmeans(object2Geojson(data), options);
+        return clustered
+    }
+
+    function func_cluster_try(){
+                $.ajax({
+                url: '/api_stay_points_return/',
+                type: 'GET',
+                dataType: 'json',
+                data: {'id': 1, 'dist_th': 200 ,'time_th':500},
+                success: function (dat) {
+                    var jsonData = JSON.stringify(dat);// 转成JSON格式
+                    alert(jsonData);
+
+                    var count_points=dat.result.count
+                    for(var i=0;i<count_points;i++) {
+                        var lat_i = dat.result.data[i].points[0].lat
+                        var lng_i = dat.result.data[i].points[0].lng
+                        data_points.push(
+                            {
+                                'LON':lat_i,
+                                'LAT':lng_i,
+                            }
+                        )
+                    }
+                    clu=func_cluster(data_points)
+
+
+                }
+            }
+        )
+
+    }
+</script>
