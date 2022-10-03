@@ -43,7 +43,7 @@
                 <el-menu-item index="3-1" @click="showDiagnoseP"
                   >阳性轨迹点</el-menu-item
                 >
-                <el-menu-item index="3-2">生成路径</el-menu-item>
+                <el-menu-item index="3-2" @click="createTrail">生成路径</el-menu-item>
                 <el-menu-item index="3-3">密接区域范围</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
@@ -179,6 +179,7 @@ export default {
       username: this.username,
       changeView: this.changeView,
       locatePlace_form: this.locatePlace_form,
+      chooseTrail:this.chooseTrail,
     };
   },
   data() {
@@ -293,6 +294,15 @@ export default {
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {
       this.tab = 3;
+    },
+    //轨迹分析->调用中间函数
+    chooseTrail(){
+      this.$refs.map.addTrail();
+    },
+    //轨迹分析->生成路径
+    createTrail(){
+      var arr=this.$refs.diagnoseP.multipleSelection
+      
     },
     //核酸采样辅助->采样点管理
     testPlaceM() {

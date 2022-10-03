@@ -28,20 +28,21 @@
 import html2canvas from "html2canvas";
 import "ol/ol.css";
 import OSM from "ol/source/OSM";
-import { Map, View, Feature, controls } from "ol";
-import TileLayer from "ol/layer/Tile";
+import { Map, View, Feature, Tile } from "ol";
 import { LineString, Point } from "ol/geom";
 import { Style, Fill, Stroke, Circle as sCircle } from "ol/style";
-import { Vector as VectorLayer } from "ol/layer";
-import { Vector as VectorSource } from "ol/source";
-import MousePosition from "ol/control/MousePosition";
+import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { TileWMS, Vector as VectorSource } from "ol/source";
 import { createStringXY } from "ol/coordinate";
+import { Select, Draw } from "ol/interaction";
 import {
   defaults as defaultControls,
   OverviewMap,
   ZoomSlider,
   ScaleLine,
+  MousePosition,
 } from "ol/control";
+import utils from "@/utils";
 
 export default {
   inject: ["locatePlace_form"],
@@ -49,6 +50,12 @@ export default {
     return {
       //地图框架
       map: null,
+      mapLayer: null,
+      trailLayer: null,
+      draw: null,
+      trailSource: null,
+      coordinate: [],
+      pTrail:[],
       //初始中心点
       initCenter: [114.612, 30.4604],
       //初始缩放
@@ -80,15 +87,19 @@ export default {
         label: "\u00AB",
         collapsed: false,
       });
+      //线图层
+      this.trailSource = new VectorSource({ wrapX: false });
+      this.trailLayer = new VectorLayer({
+        source: this.trailSource,
+      });
       //主地图
+      this.mapLayer = new TileLayer({
+        source: new OSM(),
+      });
       this.map = new Map({
         target: "mapDiv",
-        layers: [
-          new TileLayer({
-            // 使用OSM地图
-            source: new OSM(),
-          }),
-        ],
+        layers: [this.mapLayer, this.trailLayer],
+        logo: false,
         view: new View({
           // 使用WGS84坐标系
           projection: "EPSG:4326",
@@ -107,6 +118,7 @@ export default {
         })
       );
     },
+
     // 地图复位
     resetMap() {
       var view = this.map.getView();
@@ -182,20 +194,95 @@ export default {
     },
     //地图导出
     saveMap() {
-      html2canvas(this.$refs.mapDiv,{backgroundColor:null}).then((canvas)=>{
-        this.saveFile(canvas.toDataURL('image/png'),new Date().toLocaleString())
-      })
+      html2canvas(this.$refs.mapDiv, { backgroundColor: null }).then(
+        (canvas) => {
+          this.saveFile(
+            canvas.toDataURL("image/png"),
+            new Date().toLocaleString()
+          );
+        }
+      );
     },
     saveFile(data, filename) {
-      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+      const save_link = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "a"
+      );
       save_link.href = data;
       save_link.download = filename;
 
-      const event = document.createEvent('MouseEvents');
-      event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      const event = document.createEvent("MouseEvents");
+      event.initMouseEvent(
+        "click",
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
       save_link.dispatchEvent(event);
     },
-    
+
+    //绘图工具
+    onAddInteraction(type) {
+      let self = this;
+      //勾绘矢量图形的类
+      this.draw = new Draw({
+        //source代表勾绘的要素属于的数据集
+        source: self.trailSource,
+        //type 表示勾绘的要素包含的 geometry 类型
+        type: type,
+      });
+
+      //绘制结束时触发的事件
+      this.draw.on("drawend", function (e) {
+        const geometry = e.feature.getGeometry();
+        let pointArr = geometry.getCoordinates();
+        self.coordinate.push(pointArr);
+        utils.$emit("trailPoint",pointArr)
+        self.pTrail.push(self.coordinate)
+        self.coordinate=[]
+        self.removeDraw();
+      });
+      self.map.addInteraction(this.draw);
+
+    },
+    //删除交互
+    removeDraw() {
+      this.map.removeInteraction(this.draw);
+    },
+    //添加轨迹线
+    addTrail() {
+      // 获取点击地图的坐标(选中样式)
+      let selectedStyle = new Style({
+        fill: new Fill({
+          color: "rgba(1, 210, 241, 0.2)",
+        }),
+        stroke: new Stroke({
+          color: "yellow",
+          width: 4,
+        }),
+      });
+      // 选择线的工具类
+      this.selectTool = new Select({
+        multi: true,
+        hitTolerance: 10, // 误差
+        style: selectedStyle, // 选中要素的样式
+      });
+      //添加交互
+      this.map.addInteraction(this.selectTool);
+      //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
+      this.onAddInteraction("LineString");
+    },
     // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
@@ -248,10 +335,30 @@ export default {
       });
       this.map.addLayer(line);
     },
-    addBuffer() {},
-    testButtonClick(){
-      alert('测试开始')
-      alert('测试结束')
+    addBuffer() {
+      // 获取点击地图的坐标(选中样式)
+      let selectedStyle = new Style({
+        fill: new Fill({
+          color: "rgba(1, 210, 241, 0.2)",
+        }),
+        stroke: new Stroke({
+          color: "yellow",
+          width: 4,
+        }),
+      });
+      // 选择线的工具类
+      this.selectTool = new Select({
+        multi: true,
+        hitTolerance: 10, // 误差
+        style: selectedStyle, // 选中要素的样式
+      });
+      //添加交互
+      this.map.addInteraction(this.selectTool);
+      //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
+      this.onAddInteraction("LineString");
+    },
+    testButtonClick() {
+      alert('test')
     },
     //测试函数结束
   },
