@@ -6,9 +6,16 @@
         <el-aside width="200px">
           <div class="asideBand">核酸检测助手</div>
           <div class="personalInf"><PersonalInf ref="personalInf" /></div>
-          <el-menu background-color="#66ccff" active-text-color="white" :unique-opened=true>
+          <el-menu
+            background-color="#66ccff"
+            active-text-color="white"
+            :unique-opened="true"
+          >
             <el-submenu index="1">
-              <template v-slot:title><h3>地图功能控件</h3>></template>
+              <template v-slot:title
+                ><h3>地图功能控件</h3>
+                ></template
+              >
               <el-menu-item-group>
                 <el-menu-item index="1-1" @click="showMap"
                   >地图展示</el-menu-item
@@ -33,21 +40,23 @@
                 <el-menu-item index="2-2" @click="showSearchPeople"
                   >未检核酸人员查询</el-menu-item
                 >
-                <el-menu-item index="2-3" @click="saveMap">地图数据导出</el-menu-item>
+                <el-menu-item index="2-3" @click="saveMap"
+                  >地图数据导出</el-menu-item
+                >
               </el-menu-item-group>
             </el-submenu>
-
             <el-submenu index="3">
               <template v-slot:title><h3>轨迹分析</h3></template>
               <el-menu-item-group>
                 <el-menu-item index="3-1" @click="showDiagnoseP"
                   >阳性轨迹点</el-menu-item
                 >
-                <el-menu-item index="3-2" @click="createTrail">生成路径</el-menu-item>
-                <el-menu-item index="3-3">密接区域范围</el-menu-item>
+                <el-menu-item index="3-2" @click="createTrail"
+                  >生成路径</el-menu-item
+                >
+                <el-menu-item index="3-3" @click="showDiaPArea">密接区域范围</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
-
             <el-submenu index="4">
               <template v-slot:title><h3>核酸采样辅助</h3></template>
               <el-menu-item-group>
@@ -179,7 +188,7 @@ export default {
       username: this.username,
       changeView: this.changeView,
       locatePlace_form: this.locatePlace_form,
-      chooseTrail:this.chooseTrail,
+      chooseTrail: this.chooseTrail,
     };
   },
   data() {
@@ -283,26 +292,75 @@ export default {
       alert("查询完成");
     },
     //核酸人员管理->地图导出
-    saveMap(){
+    saveMap() {
       this.$refs.map.saveMap();
       this.$notify({
-        title:'成功',
-        message:'地图已导出，请查看下载文件',
-        type:'success'
-      })
+        title: "成功",
+        message: "地图已导出，请查看下载文件",
+        type: "success",
+      });
     },
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {
       this.tab = 3;
     },
     //轨迹分析->调用中间函数
-    chooseTrail(){
+    chooseTrail() {
       this.$refs.map.addTrail();
     },
     //轨迹分析->生成路径
-    createTrail(){
-      var arr=this.$refs.diagnoseP.multipleSelection
-      
+    createTrail() {
+      var index = this.$refs.diagnoseP.multipleSelection;
+      var pTrail= this.$refs.map.pTrail;
+      var arr=[]
+      if (index.length==0) {
+        this.$notify.error({
+          title: "错误",
+          message: "请先勾选要展示的人员轨迹",
+        });
+      } else {
+        for(let i=0;i<index.length;i++){
+          index[i]=Number(index[i])
+        }
+        index.sort()
+        for(let i=0;i<index.length;i++){
+          arr.push(pTrail[index[i]-1])
+        }
+        this.$refs.map.addLineMarker(arr);
+        this.$notify({
+          title: '成功',
+          message: '已完成人员轨迹展示',
+          type: 'success'
+        });
+      this.tab=0
+      }
+    },
+    //轨迹分析->密接区域范围
+    showDiaPArea(){
+      var index = this.$refs.diagnoseP.multipleSelection;
+      var pTrail= this.$refs.map.pTrail;
+      var arr=[]
+      if (index.length==0) {
+        this.$notify.error({
+          title: "错误",
+          message: "请先勾选要展示的人员密接范围",
+        });
+      } else {
+        for(let i=0;i<index.length;i++){
+          index[i]=Number(index[i])
+        }
+        index.sort()
+        for(let i=0;i<index.length;i++){
+          arr.push(pTrail[index[i]-1])
+        }
+        
+        this.$notify({
+          title: '成功',
+          message: '已完成人员密接范围展示',
+          type: 'success'
+        });
+      this.tab=0
+      }
     },
     //核酸采样辅助->采样点管理
     testPlaceM() {

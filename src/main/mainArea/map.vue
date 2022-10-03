@@ -17,7 +17,6 @@
     </div>
     <div>
       <el-button @click="addPoint">添加点</el-button>
-      <el-button @click="addLine">添加线</el-button>
       <el-button @click="addBuffer">添加缓冲区</el-button>
       <el-button @click="testButtonClick">测试</el-button>
     </div>
@@ -52,21 +51,33 @@ export default {
       map: null,
       mapLayer: null,
       trailLayer: null,
+      //绘制轨迹
       draw: null,
       trailSource: null,
+      //单条轨迹线
       coordinate: [],
-      pTrail:[],
+      //所有轨迹线
+      pTrail: [
+        [
+          [114.625212, 30.46644],
+          [114.619551, 30.466218],
+          [114.617589, 30.466121],
+        ],
+        [
+          [114.625, 30.466],
+          [114.619, 30.466],
+          [114.617, 30.466],
+        ],
+        [
+          [114.67, 30.48],
+          [114.69, 30.4],
+          [114.5, 30.4],
+        ],
+      ],
       //初始中心点
       initCenter: [114.612, 30.4604],
       //初始缩放
       initZoom: 16,
-      //测试数据开始
-      line_point: [
-        [114.625212, 30.46644],
-        [114.619551, 30.466218],
-        [114.617589, 30.466121],
-      ],
-      //测试数据结束
     };
   },
   mounted() {
@@ -118,7 +129,6 @@ export default {
         })
       );
     },
-
     // 地图复位
     resetMap() {
       var view = this.map.getView();
@@ -231,7 +241,6 @@ export default {
       );
       save_link.dispatchEvent(event);
     },
-
     //绘图工具
     onAddInteraction(type) {
       let self = this;
@@ -248,13 +257,12 @@ export default {
         const geometry = e.feature.getGeometry();
         let pointArr = geometry.getCoordinates();
         self.coordinate.push(pointArr);
-        utils.$emit("trailPoint",pointArr)
-        self.pTrail.push(self.coordinate)
-        self.coordinate=[]
+        utils.$emit("trailPoint", pointArr);
+        self.pTrail.push(self.coordinate);
+        self.coordinate = [];
         self.removeDraw();
       });
       self.map.addInteraction(this.draw);
-
     },
     //删除交互
     removeDraw() {
@@ -283,6 +291,30 @@ export default {
       //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
       this.onAddInteraction("LineString");
     },
+    //生成路径（轨迹线展示）
+    addLineMarker(arr) {
+      var lineStyle = new Style({
+        stroke: new Stroke({
+          color: "red",
+          width: 4,
+        }),
+      });
+      for (let i = 0; i < arr.length; i++) {
+        var marker = new Feature({
+          type: "lineStyle",
+          geometry: new LineString(arr[i]),
+        });
+        marker.setStyle(lineStyle);
+        var line = new VectorLayer({
+          source: new VectorSource({
+            features: [marker],
+          }),
+        });
+        this.map.addLayer(line);
+      }
+    },
+    //生成密接范围
+    createDiaPArea(arr) {},
     // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
@@ -316,49 +348,27 @@ export default {
       });
       this.map.addLayer(new_marker);
     },
-    addLine() {
-      var marker1 = new Feature({
-        type: "lineStyle",
-        geometry: new LineString(this.line_point),
-      });
-      var lineStyle = new Style({
-        stroke: new Stroke({
-          color: "red",
-          width: 4,
-        }),
-      });
-      marker1.setStyle(lineStyle);
-      var line = new VectorLayer({
-        source: new VectorSource({
-          features: [marker1],
-        }),
-      });
-      this.map.addLayer(line);
-    },
-    addBuffer() {
-      // 获取点击地图的坐标(选中样式)
-      let selectedStyle = new Style({
-        fill: new Fill({
-          color: "rgba(1, 210, 241, 0.2)",
-        }),
-        stroke: new Stroke({
-          color: "yellow",
-          width: 4,
-        }),
-      });
-      // 选择线的工具类
-      this.selectTool = new Select({
-        multi: true,
-        hitTolerance: 10, // 误差
-        style: selectedStyle, // 选中要素的样式
-      });
-      //添加交互
-      this.map.addInteraction(this.selectTool);
-      //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
-      this.onAddInteraction("LineString");
-    },
+    addBuffer() {},
     testButtonClick() {
-      alert('test')
+      alert("test");
+      var pTrail = [
+        [
+          [114.625212, 30.46644],
+          [114.619551, 30.466218],
+          [114.617589, 30.466121],
+        ],
+        [
+          [114.625, 30.466],
+          [114.619, 30.466],
+          [114.617, 30.466],
+        ],
+        [
+          [114.67, 30.48],
+          [114.69, 30.4],
+          [114.5, 30.4],
+        ],
+      ];
+
     },
     //测试函数结束
   },
