@@ -26,6 +26,7 @@
 <script>
 import html2canvas from "html2canvas";
 import "ol/ol.css";
+import GeoJSON from 'ol/format/GeoJSON';
 import OSM from "ol/source/OSM";
 import { Map, View, Feature, Tile } from "ol";
 import { LineString, Point } from "ol/geom";
@@ -42,6 +43,7 @@ import {
   MousePosition,
 } from "ol/control";
 import utils from "@/utils";
+import * as turf from '@turf/turf'
 
 export default {
   inject: ["locatePlace_form"],
@@ -314,7 +316,20 @@ export default {
       }
     },
     //生成密接范围
-    createDiaPArea(arr) {},
+    createDiaPArea(arr, meters) {
+      var line = turf.lineString(arr)
+      var buffered=turf.buffer(line,meters,{units:'meters'})
+      var format = new GeoJSON();
+      var source = new VectorSource({ wrapX: false });
+      // //读取geojson数据
+      var lineFeature  = format.readFeature(line);
+      var bufferFeature = format.readFeature(buffered);
+      // //将数据添加数据源的
+      source.addFeature(lineFeature);
+      source.addFeature(bufferFeature);
+      var test = new VectorLayer({ source: source })
+      this.map.addLayer(test)
+    },
     // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
@@ -350,25 +365,7 @@ export default {
     },
     addBuffer() {},
     testButtonClick() {
-      alert("test");
-      var pTrail = [
-        [
-          [114.625212, 30.46644],
-          [114.619551, 30.466218],
-          [114.617589, 30.466121],
-        ],
-        [
-          [114.625, 30.466],
-          [114.619, 30.466],
-          [114.617, 30.466],
-        ],
-        [
-          [114.67, 30.48],
-          [114.69, 30.4],
-          [114.5, 30.4],
-        ],
-      ];
-
+      console.log('test')
     },
     //测试函数结束
   },

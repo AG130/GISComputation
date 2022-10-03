@@ -54,7 +54,9 @@
                 <el-menu-item index="3-2" @click="createTrail"
                   >生成路径</el-menu-item
                 >
-                <el-menu-item index="3-3" @click="showDiaPArea">密接区域范围</el-menu-item>
+                <el-menu-item index="3-3" @click="showDiaPArea"
+                  >密接区域范围</el-menu-item
+                >
               </el-menu-item-group>
             </el-submenu>
             <el-submenu index="4">
@@ -311,55 +313,69 @@ export default {
     //轨迹分析->生成路径
     createTrail() {
       var index = this.$refs.diagnoseP.multipleSelection;
-      var pTrail= this.$refs.map.pTrail;
-      var arr=[]
-      if (index.length==0) {
+      var pTrail = this.$refs.map.pTrail;
+      var arr = [];
+      if (index.length == 0) {
         this.$notify.error({
           title: "错误",
           message: "请先勾选要展示的人员轨迹",
         });
       } else {
-        for(let i=0;i<index.length;i++){
-          index[i]=Number(index[i])
+        for (let i = 0; i < index.length; i++) {
+          index[i] = Number(index[i]);
         }
-        index.sort()
-        for(let i=0;i<index.length;i++){
-          arr.push(pTrail[index[i]-1])
+        index.sort();
+        for (let i = 0; i < index.length; i++) {
+          arr.push(pTrail[index[i] - 1]);
         }
         this.$refs.map.addLineMarker(arr);
         this.$notify({
-          title: '成功',
-          message: '已完成人员轨迹展示',
-          type: 'success'
+          title: "成功",
+          message: "已完成人员轨迹展示",
+          type: "success",
         });
-      this.tab=0
+        this.tab = 0;
       }
     },
     //轨迹分析->密接区域范围
-    showDiaPArea(){
+    showDiaPArea() {
       var index = this.$refs.diagnoseP.multipleSelection;
-      var pTrail= this.$refs.map.pTrail;
-      var arr=[]
-      if (index.length==0) {
+      var pTrail = this.$refs.map.pTrail;
+      var arr = [];
+      if (index.length == 0) {
         this.$notify.error({
           title: "错误",
           message: "请先勾选要展示的人员密接范围",
         });
       } else {
-        for(let i=0;i<index.length;i++){
-          index[i]=Number(index[i])
-        }
-        index.sort()
-        for(let i=0;i<index.length;i++){
-          arr.push(pTrail[index[i]-1])
-        }
-        
-        this.$notify({
-          title: '成功',
-          message: '已完成人员密接范围展示',
-          type: 'success'
-        });
-      this.tab=0
+        this.$prompt("请输入密接区域半径", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+        })
+          .then(({ value }) => {
+            for (let i = 0; i < index.length; i++) {
+              index[i] = Number(index[i]);
+            }
+            index.sort();
+            for (let i = 0; i < index.length; i++) {
+              arr.push(pTrail[index[i] - 1]);
+            }
+            for (let i = 0; i < arr.length; i++) {
+              this.$refs.map.createDiaPArea(arr[i], value);
+            }
+            this.$notify({
+              title: "成功",
+              message: "已完成人员密接范围展示",
+              type: "success",
+            });
+            this.tab = 0;
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消输入",
+            });
+          });
       }
     },
     //核酸采样辅助->采样点管理
