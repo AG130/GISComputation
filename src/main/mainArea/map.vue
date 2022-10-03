@@ -20,6 +20,7 @@
       <el-button @click="addLine">添加线</el-button>
       <el-button @click="addBuffer">添加缓冲区</el-button>
       <el-button @click="testButtonClick">测试</el-button>
+      <div></div>
     </div>
   </div>
 </template>
