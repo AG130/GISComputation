@@ -16,8 +16,6 @@
       ></div>
     </div>
     <div>
-      <el-button @click="addPoint">添加点</el-button>
-      <el-button @click="addBuffer">添加缓冲区</el-button>
       <el-button @click="testButtonClick">测试</el-button>
     </div>
   </div>
@@ -26,7 +24,7 @@
 <script>
 import html2canvas from "html2canvas";
 import "ol/ol.css";
-import GeoJSON from 'ol/format/GeoJSON';
+import GeoJSON from "ol/format/GeoJSON";
 import OSM from "ol/source/OSM";
 import { Map, View, Feature, Tile } from "ol";
 import { LineString, Point } from "ol/geom";
@@ -43,7 +41,7 @@ import {
   MousePosition,
 } from "ol/control";
 import utils from "@/utils";
-import * as turf from '@turf/turf'
+import * as turf from "@turf/turf";
 
 export default {
   inject: ["locatePlace_form"],
@@ -76,6 +74,9 @@ export default {
           [114.5, 30.4],
         ],
       ],
+      //所有检测点
+      testPlace: [[114.627855, 30.464929]],
+      index: "",
       //初始中心点
       initCenter: [114.612, 30.4604],
       //初始缩放
@@ -83,8 +84,12 @@ export default {
     };
   },
   mounted() {
-    this.initMap();
-    this.initMouse();
+    let self = this;
+    self.initMap();
+    self.initMouse();
+    utils.$on("index", (data) => {
+      self.index = data;
+    });
   },
   methods: {
     // 地图初始化
@@ -243,7 +248,7 @@ export default {
       );
       save_link.dispatchEvent(event);
     },
-    //绘图工具
+    //绘图线工具
     onAddInteraction(type) {
       let self = this;
       //勾绘矢量图形的类
@@ -270,7 +275,7 @@ export default {
     removeDraw() {
       this.map.removeInteraction(this.draw);
     },
-    //添加轨迹线
+    //绘制轨迹线
     addTrail() {
       // 获取点击地图的坐标(选中样式)
       let selectedStyle = new Style({
@@ -317,30 +322,67 @@ export default {
     },
     //生成密接范围
     createDiaPArea(arr, meters) {
-      var line = turf.lineString(arr)
-      var buffered=turf.buffer(line,meters,{units:'meters'})
+      var line = turf.lineString(arr);
+      var buffered = turf.buffer(line, meters, { units: "meters" });
       var format = new GeoJSON();
       var source = new VectorSource({ wrapX: false });
       // //读取geojson数据
-      var lineFeature  = format.readFeature(line);
+      var lineFeature = format.readFeature(line);
       var bufferFeature = format.readFeature(buffered);
       // //将数据添加数据源的
       source.addFeature(lineFeature);
       source.addFeature(bufferFeature);
-      var test = new VectorLayer({ source: source })
-      this.map.addLayer(test)
+      var test = new VectorLayer({ source: source });
+      this.map.addLayer(test);
     },
-    // 测试函数开始
-    initMouse() {
-      var MousePositionControl = new MousePosition({
-        coordinateFormat: createStringXY(6),
-        projection: "EPSG:4326",
-        className: "custom-mouse-position",
-        target: document.getElementById("mouseP"),
+    //绘图点工具
+    onAddPoint(type) {
+      let self = this;
+      //勾绘矢量图形的类
+      this.draw = new Draw({
+        //source代表勾绘的要素属于的数据集
+        source: self.trailSource,
+        //type 表示勾绘的要素包含的 geometry 类型
+        type: type,
       });
-      this.map.addControl(MousePositionControl);
+      this.draw.on("drawend", function (e) {
+        const geometry = e.feature.getGeometry();
+        let pointArr = geometry.getCoordinates();
+        utils.$emit("newTestP", pointArr);
+        if (self.testPlace[this.index] == null) {
+          self.testPlace.push(self.coordinate);
+        } else {
+          self.testPlace[this.index] = self.coordinate;
+        }
+        self.coordinate = [];
+        self.removeDraw();
+      });
+      self.map.addInteraction(this.draw);
     },
+    //绘制点
     addPoint() {
+      let selectedStyle = new Style({
+        image: new sCircle({
+          radius: 5,
+          stroke: new Stroke({
+            color: "#fff",
+          }),
+          fill: new Fill({
+            color: "#66ccff",
+          }),
+        }),
+      });
+      this.selectTool = new Select({
+        multi: true,
+        hitTolerance: 10, // 误差
+        style: selectedStyle, // 选中要素的样式
+      });
+      this.map.addInteraction(this.selectTool);
+      //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
+      this.onAddPoint("Point");
+    },
+    //展示核酸采样点
+    showTestP(arr) {
       var new_style = new Style({
         image: new sCircle({
           radius: 10,
@@ -352,20 +394,31 @@ export default {
           }),
         }),
       });
-      var point1 = new Feature({
-        geometry: new Point([114.612, 30.4604]),
-      });
-      point1.setStyle(new_style);
-      var new_marker = new VectorLayer({
-        source: new VectorSource({
-          features: [point1],
-        }),
-      });
-      this.map.addLayer(new_marker);
+      for (let i = 0; i < arr.length; i++) {
+        var point = new Feature({
+          geometry: new Point(arr[i]),
+        });
+        point.setStyle(new_style);
+        var new_marker = new VectorLayer({
+          source: new VectorSource({
+            features: [point],
+          }),
+        });
+        this.map.addLayer(new_marker);
+      }
     },
-    addBuffer() {},
+    // 测试函数开始
+    initMouse() {
+      var MousePositionControl = new MousePosition({
+        coordinateFormat: createStringXY(6),
+        projection: "EPSG:4326",
+        className: "custom-mouse-position",
+        target: document.getElementById("mouseP"),
+      });
+      this.map.addControl(MousePositionControl);
+    },
     testButtonClick() {
-      console.log('test')
+      console.log("test");
     },
     //测试函数结束
   },

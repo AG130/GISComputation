@@ -62,10 +62,10 @@
             <el-submenu index="4">
               <template v-slot:title><h3>核酸采样辅助</h3></template>
               <el-menu-item-group>
-                <el-menu-item index="4-1">现有采样点查询</el-menu-item>
-                <el-menu-item index="4-2" @click="testPlaceM"
+                <el-menu-item index="4-1" @click="testPlaceM"
                   >采样点管理</el-menu-item
                 >
+                <el-menu-item index="4-2" @click="showTP">展示所有采样点</el-menu-item>
               </el-menu-item-group>
             </el-submenu>
           </el-menu>
@@ -191,6 +191,7 @@ export default {
       changeView: this.changeView,
       locatePlace_form: this.locatePlace_form,
       chooseTrail: this.chooseTrail,
+      chooseNewTP:this.chooseNewTP,
     };
   },
   data() {
@@ -382,6 +383,21 @@ export default {
     testPlaceM() {
       this.tab = 4;
     },
+    //核酸采样辅助->添加新采样点
+    chooseNewTP(){
+      this.$refs.map.addPoint()
+    },
+    //核酸采样辅助->展示采样点
+    showTP(){
+      var testPlace = this.$refs.map.testPlace;
+      this.$refs.map.showTestP(testPlace)
+      this.tab=0;
+      this.$notify(({
+        title:'成功',
+        message:'已完成所有采样点展示',
+        type:'success'
+      }))
+    }
   },
 };
 </script>
