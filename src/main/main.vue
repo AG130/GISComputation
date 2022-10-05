@@ -207,6 +207,7 @@ export default {
   },
   data() {
     return {
+      dia_trail_list: [],
       page_name: [
         "周边地图",
         "核酸人员管理表",
@@ -358,7 +359,6 @@ export default {
     //轨迹分析->生成路径
     createTrail() {
       var index = this.$refs.diagnoseP.multipleSelection;
-      var pTrail = this.$refs.map.pTrail;
       var arr = [];
       if (index.length == 0) {
         this.$notify.error({
@@ -370,15 +370,14 @@ export default {
           index[i] = Number(index[i]);
         }
         var index_list = index.sort();
+
         const selfffff = this;
         $.ajax({
           url: "/api/from_positive_line_get_line/",
           type: "GET",
           dataType: "json",
           traditional: true,
-
           data: { index_list: index },
-
           success: function (dat) {
             var jsonData = JSON.stringify(dat); // 转成JSON格式
             for (let i = 0; i < dat.result.count; i++) {
@@ -430,18 +429,50 @@ export default {
             for (let i = 0; i < index.length; i++) {
               index[i] = Number(index[i]);
             }
-            index.sort();
-            for (let i = 0; i < index.length; i++) {
-              arr.push(pTrail[index[i] - 1]);
-            }
-            for (let i = 0; i < arr.length; i++) {
-              this.$refs.map.createDiaPArea(arr[i], value);
-            }
-            this.$notify({
-              title: "成功",
-              message: "已完成人员密接范围展示",
-              type: "success",
+            var index_list = index.sort();
+            const selfffff = this;
+            $.ajax({
+              url: "/api/from_positive_line_get_line/",
+              type: "GET",
+              dataType: "json",
+              traditional: true,
+              data: { index_list: index },
+              success: function (dat) {
+                var jsonData = JSON.stringify(dat); // 转成JSON格式
+                for (let i = 0; i < dat.result.count; i++) {
+                  var new_a_arr = [];
+                  for (
+                    let i1 = 0;
+                    i1 < dat.result.all_data[i].data.length;
+                    i1++
+                  ) {
+                    var new_a_a_arr = [
+                      dat.result.all_data[i].data[i1].locate_x_float,
+                      dat.result.all_data[i].data[i1].locate_y_float,
+                    ];
+                    new_a_arr.push(new_a_a_arr);
+                  }
+                  selfffff.dia_trail_list.push(new_a_arr);
+                }
+              },
             });
+            let fun = () => {
+              for(let i=0;i<this.dia_trail_list.length;i++){
+                this.$refs.map.createDiaPArea(this.dia_trail_list[i], value);
+              }
+              this.$notify({
+                title: "成功",
+                message: "已完成人员轨迹展示",
+                type: "success",
+              });
+            };
+            let sleep = function (fun, time) {
+              setTimeout(() => {
+                fun();
+              }, time);
+            };
+            sleep(fun, 2000);
+            this.tab = 0;
             this.tab = 0;
           })
           .catch(() => {

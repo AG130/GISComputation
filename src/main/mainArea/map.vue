@@ -27,7 +27,7 @@ import { Map, View, Feature, Tile } from "ol";
 import { LineString, Point } from "ol/geom";
 import { Style, Fill, Stroke, Circle as sCircle } from "ol/style";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
-import { TileWMS, Vector as VectorSource } from "ol/source";
+import { Vector as VectorSource, XYZ } from "ol/source";
 import { createStringXY } from "ol/coordinate";
 import { Select, Draw } from "ol/interaction";
 import {
@@ -46,33 +46,23 @@ export default {
     return {
       //地图框架
       map: null,
-      mapLayer: null,
+      OSMLayer: null,
       trailLayer: null,
+
+      tianDVec: null,
+      tianDVec_cva: null,
+      tianDImg: null,
+      tianDImg_cia: null,
+
       //绘制轨迹
       draw: null,
       trailSource: null,
       //单条轨迹线
       coordinate: [],
       //所有轨迹线
-      pTrail: [
-        [
-          [114.625212, 30.46644],
-          [114.619551, 30.466218],
-          [114.617589, 30.466121],
-        ],
-        [
-          [114.625, 30.466],
-          [114.619, 30.466],
-          [114.617, 30.466],
-        ],
-        [
-          [114.67, 30.48],
-          [114.69, 30.4],
-          [114.5, 30.4],
-        ],
-      ],
+      pTrail: [],
       //所有检测点
-      testPlace: [[114.627855, 30.464929]],
+      testPlace: [],
       index: "",
       //初始中心点
       initCenter: [114.612, 30.4604],
@@ -107,13 +97,48 @@ export default {
       this.trailLayer = new VectorLayer({
         source: this.trailSource,
       });
+
       //主地图
-      this.mapLayer = new TileLayer({
+      this.OSMLayer = new TileLayer({
         source: new OSM(),
       });
+      //ttd
+      this.tianDVec = new TileLayer({
+        source: new XYZ({
+          url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=224443b4550bb2e677a38122df9d6b35",
+          wrapX: true,
+        }),
+      });
+      this.tianDVec_cva = new TileLayer({
+        source: new XYZ({
+          url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=224443b4550bb2e677a38122df9d6b35",
+          wrapX: true,
+        }),
+      });
+
+      this.tianDImg = new TileLayer({
+        source: new XYZ({
+          url: "http://t0.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=224443b4550bb2e677a38122df9d6b35",
+          wrapX: true,
+        }),
+      });
+      this.tianDImg_cia = new TileLayer({
+        source: new XYZ({
+          url: "http://t0.tianditu.com/DataServer?T=cia_w&x={x}&y={y}&l={z}&tk=224443b4550bb2e677a38122df9d6b35",
+          wrapX: true,
+        }),
+      });
+
       this.map = new Map({
         target: "mapDiv",
-        layers: [this.mapLayer, this.trailLayer],
+        layers: [
+          this.OSMLayer,
+          this.tianDVec,
+          this.tianDVec_cva,
+          this.tianDImg,
+          this.tianDImg_cia,
+          this.trailLayer,
+        ],
         logo: false,
         view: new View({
           // 使用WGS84坐标系
@@ -191,17 +216,34 @@ export default {
     },
     //切换地图展示
     changeMap(id) {
+      var layers = this.map.getLayers();
+      var layer = new Array();
+      var layerVisibility = new Array();
+      for (var i = 0; i < layers.getLength(); i++) {
+        layer[i] = layers.item(i);
+        layerVisibility[i] = layer[i].getVisible();
+      }
       switch (id) {
         case 0:
-          alert("1");
-          //展示OSM地图
+          layer[0].setVisible(true);
+          layer[1].setVisible(false);
+          layer[2].setVisible(false);
+          layer[3].setVisible(false);
+          layer[4].setVisible(false);
           break;
         case 1:
-          alert("2");
-          //展示天地图矢量地图
+          layer[0].setVisible(false);
+          layer[1].setVisible(true);
+          layer[2].setVisible(true);
+          layer[3].setVisible(false);
+          layer[4].setVisible(false);
           break;
         case 2:
-          alert("3");
+          layer[0].setVisible(false);
+          layer[1].setVisible(false);
+          layer[2].setVisible(false);
+          layer[3].setVisible(true);
+          layer[4].setVisible(true);
           //展示天地图影像地图
           break;
       }
