@@ -11,7 +11,6 @@
             <span class="errTips" v-if="pEmpty">* 密码不能为空！ *</span>
           </div>
           <button class="bbutton" @click="login">登录</button>
-          <el-button @click="jump">跳转测试</el-button>
         </div>
         <div class="big-contain" key="bigContainRegister" v-else>
           <div class="btitle">创建账户</div>
@@ -57,13 +56,6 @@ export default {
     };
   },
   methods: {
-    jump() {
-      window.sessionStorage.setItem("isLogin", "true"); //登陆成功
-      this.$router.push({
-        name: "main",
-        params: { username: this.form.useremail },
-      });
-    },
     changeType() {
       this.isLogin = !this.isLogin;
       this.form.username = "";

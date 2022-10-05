@@ -15,9 +15,6 @@
         "
       ></div>
     </div>
-    <div>
-      <el-button @click="testButtonClick">测试</el-button>
-    </div>
   </div>
 </template>
  
@@ -407,7 +404,6 @@ export default {
         this.map.addLayer(new_marker);
       }
     },
-    // 测试函数开始
     initMouse() {
       var MousePositionControl = new MousePosition({
         coordinateFormat: createStringXY(6),
@@ -417,10 +413,6 @@ export default {
       });
       this.map.addControl(MousePositionControl);
     },
-    testButtonClick() {
-      console.log("test");
-    },
-    //测试函数结束
   },
 };
 </script>

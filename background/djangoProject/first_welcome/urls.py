@@ -26,6 +26,17 @@ urlpatterns = [
     path('all_area_form_db/',views.all_area_form_db,name="all_area_form_db"),
 
     path('api_stay_points_return/',views.api_stay_points_return,name="api_stay_points_return"),
+    path('api_add_line/', views.api_add_line, name="api_add_line"),
+    path('api_get_positive_info/',views.api_get_positive_info,name="api_get_positive_info"),
+    path('del_people_info/',views.del_people_info,name="del_people_info"),
+    path('from_positive_line_get_line/',views.from_positive_line_get_line,name="from_positive_line_get_line"),
+
+    path('add_check_point/',views.add_check_point,name="add_check_point"),
+    path('del_check_point/', views.del_check_point, name="del_check_point"),
+    path('explore_all_check_point/', views.explore_all_check_point, name="explore_all_check_point"),
+
+    path('sevelal_day_without_check/', views.sevelal_day_without_check, name="sevelal_day_without_check"),
+
 ]
 
 # python manage.py runserver

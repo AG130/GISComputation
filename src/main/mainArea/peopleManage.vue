@@ -199,28 +199,6 @@ export default {
     return {
       //人员信息表
       db_p_info: [
-        {
-          id: 1,
-          name: "张三",
-          p_id: "320410200104011234",
-          p_address: "中国地质大学未来城校区",
-          x: "114.624",
-          y: "30.4634",
-          p_phone: "12300001234",
-          testData: "2022-04-01",
-          testResult: "阴性",
-        },
-        {
-          id: 2,
-          name: "李四",
-          p_id: "320410200104011234",
-          p_address: "中国地质大学未来城校区",
-          x: "114.624",
-          y: "30.4634",
-          p_phone: "12300001234",
-          testData: "2022-04-01",
-          testResult: "阴性",
-        },
       ],
       //新增信息窗口可视
       new_p_input_vis: false,
@@ -288,22 +266,7 @@ export default {
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat);// 转成JSON格式
-          // alert(jsonData);
-
-          // {#前端收到的json是这个：#}
-          // {#{'code': 0, 'msg': '', 'data': [{'id': 1, #}
-          //   {#                    'name': '路人甲', 'sex': '男', 'id_card': '140098098', #}
-          //   {#                    'checkdata': '20191989',sult': '阳性', 'responsibilityman': '负责人1', ' +#}
-          //   {#                        ''lon': 100.111, 'lat': 79.999}], 'count': 1}#}
-
           for (var i=0;i<dat.result.data.length;i++) {
-
-            // alert(dat.result.data[i].name);
-            // var will_add_lon = dat.result.data[i].lon
-            // alert(will_add_lon)
-            // var will_add_lat = dat.result.data[i].lat
-            // var manindex = '性别：' + dat.result.data[i].sex + '检测日期：' + dat.result.data[i].checkdata
-
             var will_append={
               id:dat.result.data[i].id,
               name:dat.result.data[i].name,
@@ -317,15 +280,6 @@ export default {
 
 
             }
-            // id:'1',
-            //     name:'张三',
-            //     p_id:'320410200104011234',
-            //     p_address:"中国地质大学未来城校区",
-            //     x:'114.624',
-            //     y:'30.4634',
-            //     p_phone:'12300001234',
-            //     testData:'2022-04-01',
-            //     testResult:'阴性'
             self.db_p_info.push(will_append)
           }
         },

@@ -144,6 +144,7 @@ import utils from "@/utils";
 export default {
   inject: ["changeView", "chooseNewTP"],
   mounted() {
+    this.people_input()
     var that = this;
     utils.$on("newTestP", (data) => {
       that.newTestP_xy = data;
@@ -156,13 +157,6 @@ export default {
   data() {
     return {
       testPlace_form: [
-        {
-          t_id: "1",
-          t_name: "地大核酸采样点",
-          t_address: "洪山区左岭街道中国地质大学未来城体育馆",
-          x: "114.627855",
-          y: "30.464929",
-        },
       ],
       new_tP_form: {
         t_id: "",
@@ -190,6 +184,34 @@ export default {
     };
   },
   methods: {
+    people_input(){
+      const self=this;
+      $.ajax({
+        url: '/api/explore_all_check_point/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'type': "id", 'value': "1"},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          for (var i=0;i<dat.result.data.length;i++) {
+            var will_append={
+              t_id:dat.result.data[i].point_id,
+              t_name:dat.result.data[i].point_name,
+              t_address:dat.result.data[i].poind_address,
+              x:dat.result.data[i].locate_x_float,
+              y:dat.result.data[i].locate_y_float,
+
+            }
+            self.testPlace_form.push(will_append)
+          }
+        },
+        error: function () {
+          alert('服务器超时，请重试！');
+        }
+      })
+    },
+
     //新增核酸检测点
     addNewTestPlace() {
       this.newTPForm_vis = true;
@@ -209,6 +231,19 @@ export default {
     },
     //删除
     handleDelete(index, row) {
+      const selfff=this;
+      $.ajax({
+        url: '/api/del_check_point/',
+        type: 'GET',
+        dataType: 'json',
+        data: {'point_id': selfff.testPlace_form[index].t_id},
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          alert("删除成功")
+        }
+      })
+
       this.testPlace_form.splice(index, 1);
     },
     //取消修改
@@ -224,6 +259,7 @@ export default {
     conf_tp_input() {
       this.testPlace_form[this.tP_form.t_id - 1].x = this.tP_form.x;
       this.testPlace_form[this.tP_form.t_id - 1].y = this.tP_form.y;
+
       this.tpForm_vis = false;
     },
     //取消新增
@@ -236,7 +272,39 @@ export default {
       this.newTPForm_vis = false;
     },
     //确认新增
-    conf_newTP_input() {},
+    conf_newTP_input() {
+      let newTp = {
+        t_id:this.new_tP_form.t_id,
+        t_name:this.new_tP_form.t_name,
+        t_address:this.new_tP_form.t_address,
+        x:this.new_tP_form.x,
+        y:this.new_tP_form.y
+      }
+      const selffff=this;
+      $.ajax({
+        url: '/api/add_check_point/',
+        type: 'GET',
+        dataType: 'json',
+        // traditional: true,
+        data: {'point_id': selffff.new_tP_form.t_id,
+          'point_name':selffff.new_tP_form.t_name,
+          'poind_address':selffff.new_tP_form.t_address,
+          'locate_x_float':selffff.new_tP_form.x,
+          'locate_y_float':selffff.new_tP_form.y,
+        },
+
+
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          alert("成功")
+        }
+      })
+      this.people_input()
+
+      this.newTPForm_vis = false;
+
+    },
     //分页有关（start）
     handleSizeChange(size) {
       this.pageSize = size;

@@ -11,11 +11,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column
-          prop="id"
-          label="序号"
-          width="50"
-        ></el-table-column>
+        <el-table-column prop="id" label="序号" width="50"></el-table-column>
         <el-table-column
           prop="p_name"
           label="姓名"
@@ -77,10 +73,7 @@
       <el-dialog title="核酸人员录入" :visible.sync="newDiaPInput_vis">
         <el-form :model="newDIaP_form">
           <el-form-item label="序号" :label-width="form_width">
-            <el-input
-              v-model="newDIaP_form.id"
-              auto-complete="off"
-            ></el-input>
+            <el-input v-model="newDIaP_form.id" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="form_width">
             <el-input
@@ -135,6 +128,7 @@ export default {
   inject: ["changeView", "chooseTrail"],
   mounted() {
     var that = this;
+    that.people_input_positive();
     utils.$on("trailPoint", (data) => {
       that.dia_trail_xy = data;
     });
@@ -142,29 +136,7 @@ export default {
   data() {
     return {
       //人员轨迹表
-      dia_form: [
-        {
-          id:'1',
-          p_name: "张三",
-          p_id: "320410123412341234",
-          dia_time: "2021-09-01",
-          dia_trail: "肉夹馍->车友驾校->胖哥面馆",
-        },
-        {
-          id:'2',
-          p_name: "张三",
-          p_id: "320410123412341234",
-          dia_time: "2021-09-01",
-          dia_trail: "肉夹馍->车友驾校->胖哥面馆",
-        },
-        {
-          id:'3',
-          p_name: "张三",
-          p_id: "320410123412341234",
-          dia_time: "2021-09-01",
-          dia_trail: "肉夹馍->车友驾校->胖哥面馆",
-        },
-      ],
+      dia_form: [],
       //多选框
       multipleSelection: [],
       //新增人员窗口查看
@@ -173,7 +145,7 @@ export default {
       form_width: "80px",
       //新增轨迹表
       newDIaP_form: {
-        id:'',
+        id: "",
         p_name: "",
         p_id: "",
         dia_time: "",
@@ -189,6 +161,34 @@ export default {
   },
   methods: {
     //新增阳性轨迹点
+    people_input_positive() {
+      const self = this;
+      $.ajax({
+        url: "/api/api_get_positive_info/",
+        type: "GET",
+        dataType: "json",
+        data: { type: "id", value: "1" },
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+
+          for (var i = 0; i < dat.result.data.length; i++) {
+            var will_append = {
+              id: dat.result.data[i].line_id,
+              p_name: dat.result.data[i].people_name,
+              p_id: dat.result.data[i].people_id_card,
+              dia_time: dat.result.data[i].time,
+              dia_trail: dat.result.data[i].line_info,
+            };
+            self.dia_form.push(will_append);
+          }
+        },
+        error: function () {
+          alert("服务器超时，请重试！");
+        },
+      });
+    },
+
     addNewDiaP() {
       this.newDiaPInput_vis = true;
     },
@@ -208,6 +208,28 @@ export default {
     },
     //确认轨迹输入
     conf_DiaP_input() {
+      //
+      const selffff = this;
+      $.ajax({
+        url: "/api/api_add_line/",
+        type: "GET",
+        dataType: "json",
+        traditional: true,
+        data: {
+          line_id: selffff.newDIaP_form.id,
+          people_name: selffff.newDIaP_form.p_name,
+          people_id_card: selffff.newDIaP_form.p_id,
+          time: selffff.newDIaP_form.dia_time,
+          line_info: selffff.newDIaP_form.dia_trail,
+          loc_x_y: selffff.dia_trail_xy,
+        },
+
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+          alert("成功");
+        },
+      });
+
       this.newDIaP_form.p_name = "";
       this.newDIaP_form.p_id = "";
       this.newDIaP_form.dia_time = "";
@@ -223,6 +245,20 @@ export default {
         type: "warning",
       })
         .then(() => {
+          const selfffff = this;
+
+          $.ajax({
+            url: "/api/del_people_info/",
+            type: "GET",
+            dataType: "json",
+            data: { line_id: selfffff.dia_form[index].id },
+
+            success: function (dat) {
+              var jsonData = JSON.stringify(dat); // 转成JSON格式
+              alert("删除成功");
+            },
+          });
+
           this.dia_form.splice(index, 1);
         })
         .catch(() => {
@@ -233,7 +269,7 @@ export default {
         });
     },
     handleSelectionChange(val) {
-      this.multipleSelection=val.map(item=>item.id)
+      this.multipleSelection = val.map((item) => item.id);
     },
     //分页有关（start）
     handleSizeChange(size) {

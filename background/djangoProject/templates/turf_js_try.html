@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+
+</head>
+<body>
+
+</body>
+</html>
+
+<script>
+    var points = turf.randomPoint(25, {bbox: [-180, -90, 180, 90]})
+    var points1={
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+
+                "LON": 114.42089,
+                "LAT": 37.369456
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    114.42089,
+                    37.369456
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+
+                "LON": 114.427959,
+                "LAT": 37.369497
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    114.427959,
+                    37.369497
+                ]
+            }
+        }
+    ]
+}
+    var options = {numberOfClusters: 4};
+    var clustered = turf.clustersKmeans(points, options);
+    data=[
+            {
+              "LON": 114.42089,
+              "LAT": 37.369456,
+
+            },
+            {
+
+              "LON": 114.427959,
+              "LAT": 37.369497,
+            }
+         ]
+
+    function object2Geojson(data) {
+    var featureCollection = { "type": "FeatureCollection" };
+	var features = new Array();
+
+	for (let i = 0; i < data.length; i++) {
+	var feature = { "type": "Feature" };
+	feature.properties = data[i];
+	var geometry = { "type": "Point" };
+	geometry.coordinates = [data[i].LON, data[i].LAT];
+	feature.geometry = geometry;
+	features.push(feature);
+	}
+
+	featureCollection.features = features;
+	return featureCollection;
+}
+
+</script>

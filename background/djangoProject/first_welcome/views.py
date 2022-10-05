@@ -16,22 +16,24 @@ import json
 
 
 def register(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        password2 = request.POST.get("password2")
+    if request.method == "GET":
+        username = request.GET.get("username")
+        useremail= request.GET.get("useremail")
+        password = request.GET.get("password")
+        # password2 = request.GET.get("password2")
         if User.objects.filter(username=username):  # 用户名已存在
             error_message = "用户名已存在"
-            return render(request, "register.html", {"error_message": error_message})
-        elif password != password2:  # 两次密码不一致
-            error_message = "两次密码不一致，请重新输入"
-            return render(request, "register.html", {"error_message": error_message})
+            return JsonResponse(data={'result':'用户名已存在'})
+        # elif password != password2:  # 两次密码不一致
+        #     error_message = "两次密码不一致，请重新输入"
+        #     return render(request, "register.html", {"error_message": error_message})
         else:  # 可以注册
-            User.objects.create(username=username, password=make_password(password))  # 增
+            User.objects.create(username=username, password=make_password(password)
+                                ,useremail=useremail)  # 增
             request.session['username'] = username  # 添加session
-            return render(request, "register.html", {"success": True})
+            return JsonResponse(data={'result':'可以注册'})
     else:
-        return render(request, "register.html")
+        return JsonResponse(data={'result':'else'})
 
 def user_logout(request):
     logout(request)
@@ -58,7 +60,7 @@ def welcome(request):
 
 def index(request):
     # 前端到后端传参
-    if request.method == "GET":
+    if request.method == "POST":
         print("request.method == GET")
         return render(request, "index.html")
 
@@ -71,16 +73,14 @@ def index(request):
     #     return render(request, "welcome.html",
     #       {"username":request.POST.get("username")})
 
-    if request.method == "POST":
-        user = authenticate(username=request.POST.get("username"), password=request.POST.get("password"))
-        if user:
-            login(request, user)
-            print("login")
-            return render(request, "welcome.html", {"username": request.POST.get("username")})
+    if request.method == "GET":
+        user = authenticate(username=request.GET.get("username"), password=request.GET.get("password"))
+        if user is not None:
+            return JsonResponse(data={'result':'success'})
         else:
-            return render(request, "index.html", {"error_message": "用户名或密码错误！"})
+            return JsonResponse(data={'result':'fail'})
     else:
-        return render(request, "index.html")
+        return JsonResponse(data={'result':'else'})
 
 
 # def index_pro(request):
@@ -347,13 +347,14 @@ def api_stay_points_return(request):  #停驻点api
     stay_points_id=request.GET.get('id')
     dist_threh=request.GET.get('dist_th')
     time_threh=request.GET.get('time_th')
+    print(stay_points_id,dist_threh,time_threh)
     command="python /Users/wsy/GIS/djangoProject/stay_points_explore/api_id_out_points.py "\
             +str(stay_points_id)+' '+str(dist_threh)+' '+str(time_threh)
     r=os.popen(command)
     info = r.readlines()  # 读取命令行的输出到一个list
     print(len(info))
 
-    dict ={"code":0,"msg":"","data":[]}
+    dict ={"code":200,"msg":"","data":[]}
     count = len(info)
     dict['count'] = count
 
@@ -374,5 +375,144 @@ def api_stay_points_return(request):  #停驻点api
 
 
     return JsonResponse(data={'result':dict})
+
+@require_GET
+def api_add_line(request):
+    # print(request.GET.get('line_id'))
+    # print(request.GET.get('people_name'))
+    # print(request.GET.get('people_id_card'))
+    # print(request.GET.get('time'))
+    # print(request.GET.get('line_info'))
+    loc_x_y_list=request.GET.getlist('loc_x_y')
+
+    positive_info.objects.create(line_id=request.GET.get('line_id'),
+                                 people_name=request.GET.get('people_name'),
+                                 people_id_card=request.GET.get('people_id_card'),
+                                 time=request.GET.get('time'),
+                                 line_info=request.GET.get('line_info'))
+
+    for i in range(len(request.GET.getlist('loc_x_y'))):
+        positive_line.objects.create(line_id=request.GET.get('line_id'),
+                                     people_name=request.GET.get('people_name'),
+                                     people_id_card=request.GET.get('people_id_card'),
+                                     time=request.GET.get('time'),
+                                     line_info=request.GET.get('line_info'),
+                                     locate_x_float=loc_x_y_list[i].split(',')[0],
+                                     locate_y_float=loc_x_y_list[i].split(',')[1],)
+
+    return JsonResponse(data={'result':'success'})
+
+@require_GET
+def api_get_positive_info(request):
+    scences = positive_info.objects.all()
+    dict = {"code": 0, "msg": "", "data": []}
+    count = scences.count()
+    dict['count'] = count
+
+    #   写入：
+    for row in scences:
+        row_dict = {}
+        row_dict['line_id'] = row.line_id
+        row_dict['people_name'] = row.people_name
+        row_dict['people_id_card'] = row.people_id_card
+        row_dict['time'] = row.time
+        row_dict['line_info'] = row.line_info
+        dict['data'].append(row_dict)
+
+    print(dict)
+    return JsonResponse(data={'result': dict})
+
+def del_people_info(request):
+    will_delete_id=request.GET.get('line_id')
+
+    t=positive_info.objects.get(line_id=will_delete_id)
+    t.delete()
+
+    tt=positive_line.objects.get(line_id=will_delete_id)
+    tt.delete()
+
+    return JsonResponse(data={'result':'success'})
+
+def from_positive_line_get_line(request):
+    line_id_list = request.GET.getlist('index_list')
+    count=len(line_id_list)
+
+    all_dict = {"all_data": [], 'count': count}
+
+    for lind_id in line_id_list:
+        scences=positive_line.objects.filter(line_id=lind_id)
+        count = scences.count()
+        dict = {"line_id": lind_id, "msg": "", "data": []}
+
+        #   写入：
+        for row in scences:
+            row_dict = {}
+            row_dict['locate_x_float'] = row.locate_x_float
+            row_dict['locate_y_float'] = row.locate_y_float
+
+            dict['data'].append(row_dict)
+
+        print(dict)
+        all_dict['all_data'].append(dict)
+
+
+    return JsonResponse(data={'result': all_dict})
+
+def add_check_point(request):
+
+    check_point.objects.create(point_id=request.GET.get('point_id'),
+                                 point_name=request.GET.get('point_name'),
+                                 poind_address=request.GET.get('poind_address'),
+                                 locate_x_float=request.GET.get('locate_x_float'),
+                                 locate_y_float=request.GET.get('locate_y_float'))
+
+    return JsonResponse(data={'result':'success'})
+
+def del_check_point(request):
+    will_delete_id=request.GET.get('point_id')
+
+    t=check_point.objects.get(point_id=will_delete_id)
+    t.delete()
+
+    return JsonResponse(data={'result':'success'})
+
+def explore_all_check_point(request):
+    scences = check_point.objects.all()
+    dict = {"code": 0, "msg": "", "data": []}
+    count = scences.count()
+    dict['count'] = count
+
+    #   写入：
+    for row in scences:
+        row_dict = {}
+        row_dict['point_id'] = row.point_id
+        row_dict['point_name'] = row.point_name
+        row_dict['poind_address'] = row.poind_address
+        row_dict['locate_x_float'] = row.locate_x_float
+        row_dict['locate_y_float'] = row.locate_y_float
+        dict['data'].append(row_dict)
+
+    print(dict)
+    return JsonResponse(data={'result': dict})
+
+def sevelal_day_without_check(request):
+    day = request.GET.get('day')
+    scences = gis_table.objects.filter(checkdate__lt=day)
+    dict = {"code": 0, "msg": "", "data": []}
+    count = scences.count()
+    dict['count'] = count
+
+    #   写入：
+    for row in scences:
+        row_dict = {}
+        row_dict['locate_x_float'] = row.locate_x_float
+        row_dict['locate_y_float'] = row.locate_y_float
+        dict['data'].append(row_dict)
+
+    print(dict)
+    return JsonResponse(data={'result': dict})
+
+
+
 
 

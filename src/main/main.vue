@@ -65,7 +65,9 @@
                 <el-menu-item index="4-1" @click="testPlaceM"
                   >采样点管理</el-menu-item
                 >
-                <el-menu-item index="4-2" @click="showTP">展示所有采样点</el-menu-item>
+                <el-menu-item index="4-2" @click="showTP"
+                  >展示所有采样点</el-menu-item
+                >
               </el-menu-item-group>
             </el-submenu>
           </el-menu>
@@ -152,11 +154,9 @@
         <el-dialog title="未检核酸人员查询" :visible.sync="p_s_vis">
           <el-form :model="p_s_form">
             <el-form-item label="连续未做核酸天数：" :label-width="p_s_width">
-              <el-input-number
+              <el-input
                 v-model="p_s_form.data"
-                :min="1"
-                :max="31"
-              ></el-input-number>
+              ></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -191,7 +191,7 @@ export default {
       changeView: this.changeView,
       locatePlace_form: this.locatePlace_form,
       chooseTrail: this.chooseTrail,
-      chooseNewTP:this.chooseNewTP,
+      chooseNewTP: this.chooseNewTP,
     };
   },
   data() {
@@ -236,6 +236,8 @@ export default {
       },
       //行宽
       p_s_width: "150px",
+      showSearchedP:[],
+      showTP_loc: [],
     };
   },
   methods: {
@@ -292,6 +294,28 @@ export default {
     //核酸人员管理->未检核酸人员查询->确认查询
     searchP_conf() {
       // 查询未检核酸人员
+      const selfffff=this;
+
+      $.ajax({
+        url: '/api/sevelal_day_without_check/',
+        type: 'GET',
+        dataType: 'json',
+        traditional: true,
+        data: {'day':selfffff.p_s_form.data,
+        },
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          alert(jsonData)
+          for (var i=0;i<dat.result.data.length;i++) {
+            var will_append={
+              locate_x_float:dat.result.data[i].locate_x_float,
+              locate_y_float:dat.result.data[i].locate_y_float,
+            }
+            self.showSearchedP.push(will_append)
+          }
+        }}
+      );
+      this.$refs.map.showTestP(this.showSearchedP);
       alert("查询完成");
     },
     //核酸人员管理->地图导出
@@ -384,20 +408,28 @@ export default {
       this.tab = 4;
     },
     //核酸采样辅助->添加新采样点
-    chooseNewTP(){
-      this.$refs.map.addPoint()
+    chooseNewTP() {
+      this.$refs.map.addPoint();
     },
     //核酸采样辅助->展示采样点
-    showTP(){
-      var testPlace = this.$refs.map.testPlace;
-      this.$refs.map.showTestP(testPlace)
-      this.tab=0;
-      this.$notify(({
-        title:'成功',
-        message:'已完成所有采样点展示',
-        type:'success'
-      }))
-    }
+    showTP() {
+      var length = this.$refs.testPlace.testPlace_form.length;
+      var arr = [];
+      for (let i = 0; i < length; i++) {
+        arr = [
+          this.$refs.testPlace.testPlace_form[i].x,
+          this.$refs.testPlace.testPlace_form[i].y,
+        ];
+        this.showTP_loc.push(arr);
+      }
+      this.$refs.map.showTestP(this.showTP_loc);
+      this.tab = 0;
+      this.$notify({
+        title: "成功",
+        message: "已完成所有采样点展示",
+        type: "success",
+      });
+    },
   },
 };
 </script>
