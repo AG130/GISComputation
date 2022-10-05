@@ -20,18 +20,12 @@
       <span>欢迎:{{ username }}</span>
     </div>
     <div class="personalSelect">
-      <div class="clickCss" @click="showPInfDetail">
+      <!-- <div class="clickCss" @click="showPInfDetail">
         <div>
           <i class="el-icon-user-solid"></i>
         </div>
         <div class="inf">个人信息</div>
-      </div>
-      <div class="clickCss">
-        <div>
-          <i class="el-icon-message"></i>
-        </div>
-        <div class="inf">私信</div>
-      </div>
+      </div> -->
       <div class="clickCss" @click="exitLoginConf">
         <div>
           <i class="el-icon-switch-button"></i>

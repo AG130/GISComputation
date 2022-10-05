@@ -7,7 +7,7 @@
           <div class="asideBand">核酸检测助手</div>
           <div class="personalInf"><PersonalInf ref="personalInf" /></div>
           <el-menu
-            background-color="#66ccff"
+            background-color="#0099ff"
             active-text-color="white"
             :unique-opened="true"
           >
@@ -75,18 +75,25 @@
         <!-- 主页面 -->
         <el-container>
           <!-- 标头 -->
-          <el-header>Header</el-header>
+          <el-header>
+            <div style="text-align: left">
+              {{ page_name[tab] }}
+              <div>
+                <WeatherReport ref="weatherReport" />
+              </div>
+            </div>
+          </el-header>
           <!-- 显示区域 -->
           <el-main>
             <div v-show="this.tab == 0">
               <Map ref="map" @sendCood="getCood" />
             </div>
-            <div v-show="this.tab == 1"><PInfDetail ref="pInfDetail" /></div>
-            <div v-show="this.tab == 2">
+            <div v-show="this.tab == 10"><PInfDetail ref="pInfDetail" /></div>
+            <div v-show="this.tab == 1">
               <PeopleManage ref="peopleManage" />
             </div>
-            <div v-show="this.tab == 3"><DiagnoseP ref="diagnoseP" /></div>
-            <div v-show="this.tab == 4"><TestPlace ref="testPlace" /></div>
+            <div v-show="this.tab == 2"><DiagnoseP ref="diagnoseP" /></div>
+            <div v-show="this.tab == 3"><TestPlace ref="testPlace" /></div>
           </el-main>
         </el-container>
       </el-container>
@@ -153,9 +160,10 @@
       <div>
         <el-dialog title="未检核酸人员查询" :visible.sync="p_s_vis">
           <el-form :model="p_s_form">
-            <el-form-item label="连续未做核酸天数：" :label-width="p_s_width">
+            <el-form-item label="最后核酸检测日期：" :label-width="p_s_width">
               <el-input
                 v-model="p_s_form.data"
+                placeholder="输入格式为数字，如2022年10月1日即输入20221001"
               ></el-input>
             </el-form-item>
           </el-form>
@@ -171,11 +179,13 @@
 
 <script>
 import PersonalInf from "./aside/personalInf.vue";
+import weatherReport from "./head/weatherReport.vue";
 import Map from "./mainArea/map.vue";
 import PInfDetail from "./mainArea/pInfDetail.vue";
 import PeopleManage from "./mainArea/peopleManage.vue";
 import DiagnoseP from "./mainArea/diagnoseP.vue";
 import TestPlace from "./mainArea/testPlace.vue";
+import WeatherReport from "./head/weatherReport.vue";
 export default {
   components: {
     Map,
@@ -184,6 +194,7 @@ export default {
     PeopleManage,
     DiagnoseP,
     TestPlace,
+    WeatherReport,
   },
   provide() {
     return {
@@ -196,6 +207,12 @@ export default {
   },
   data() {
     return {
+      page_name: [
+        "周边地图",
+        "核酸人员管理表",
+        "阳性人员轨迹表",
+        "核酸采样点管理表",
+      ],
       //用户名
       username: this.$route.params.username,
       //页面代码
@@ -236,7 +253,7 @@ export default {
       },
       //行宽
       p_s_width: "150px",
-      showSearchedP:[],
+      showSearchedP: [],
       showTP_loc: [],
     };
   },
@@ -294,27 +311,26 @@ export default {
     //核酸人员管理->未检核酸人员查询->确认查询
     searchP_conf() {
       // 查询未检核酸人员
-      const selfffff=this;
+      const selfffff = this;
 
       $.ajax({
-        url: '/api/sevelal_day_without_check/',
-        type: 'GET',
-        dataType: 'json',
+        url: "/api/sevelal_day_without_check/",
+        type: "GET",
+        dataType: "json",
         traditional: true,
-        data: {'day':selfffff.p_s_form.data,
-        },
+        data: { day: selfffff.p_s_form.data },
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
-          alert(jsonData)
-          for (var i=0;i<dat.result.data.length;i++) {
-            var will_append={
-              locate_x_float:dat.result.data[i].locate_x_float,
-              locate_y_float:dat.result.data[i].locate_y_float,
-            }
-            self.showSearchedP.push(will_append)
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+          alert(jsonData);
+          for (var i = 0; i < dat.result.data.length; i++) {
+            var will_append = {
+              locate_x_float: dat.result.data[i].locate_x_float,
+              locate_y_float: dat.result.data[i].locate_y_float,
+            };
+            self.showSearchedP.push(will_append);
           }
-        }}
-      );
+        },
+      });
       this.$refs.map.showTestP(this.showSearchedP);
       alert("查询完成");
     },
@@ -437,14 +453,14 @@ export default {
 <style scoped>
 .el-header,
 .el-footer {
-  background-color: #b3c0d1;
+  background-color: #6cf;
   color: #333;
-  text-align: center;
+  text-align: left;
   line-height: 60px;
 }
 
 .el-aside {
-  background-color: #6cf;
+  background-color: #09f;
   color: #333;
 }
 
