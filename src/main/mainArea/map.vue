@@ -129,6 +129,11 @@ export default {
         }),
       });
 
+      
+      this.tianDVec.setVisible(false)
+      this.tianDVec_cva.setVisible(false)
+      this.tianDImg.setVisible(false)
+      this.tianDImg_cia.setVisible(false)
       this.map = new Map({
         target: "mapDiv",
         layers: [
