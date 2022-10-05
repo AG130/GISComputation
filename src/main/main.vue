@@ -78,7 +78,7 @@
           <el-header>
             <div style="text-align: left">
               {{ page_name[tab] }}
-              <div>
+              <div style="z-index: 100">
                 <WeatherReport ref="weatherReport" />
               </div>
             </div>
@@ -297,7 +297,7 @@ export default {
     },
     //核酸人员管理->人员录入
     peopleManage() {
-      this.tab = 2;
+      this.tab = 1;
     },
     //核酸人员管理->未检核酸人员查询
     showSearchPeople() {
@@ -318,20 +318,24 @@ export default {
         type: "GET",
         dataType: "json",
         traditional: true,
+
         data: { day: selfffff.p_s_form.data },
+
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
           alert(jsonData);
+
           for (var i = 0; i < dat.result.data.length; i++) {
             var will_append = {
               locate_x_float: dat.result.data[i].locate_x_float,
               locate_y_float: dat.result.data[i].locate_y_float,
             };
-            self.showSearchedP.push(will_append);
+
+            // self.db_p_info.push(will_append)
           }
         },
       });
-      this.$refs.map.showTestP(this.showSearchedP);
+
       alert("查询完成");
     },
     //核酸人员管理->地图导出
@@ -345,7 +349,7 @@ export default {
     },
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {
-      this.tab = 3;
+      this.tab = 2;
     },
     //轨迹分析->调用中间函数
     chooseTrail() {
@@ -365,16 +369,45 @@ export default {
         for (let i = 0; i < index.length; i++) {
           index[i] = Number(index[i]);
         }
-        index.sort();
-        for (let i = 0; i < index.length; i++) {
-          arr.push(pTrail[index[i] - 1]);
-        }
-        this.$refs.map.addLineMarker(arr);
-        this.$notify({
-          title: "成功",
-          message: "已完成人员轨迹展示",
-          type: "success",
+        var index_list = index.sort();
+        const selfffff = this;
+        $.ajax({
+          url: "/api/from_positive_line_get_line/",
+          type: "GET",
+          dataType: "json",
+          traditional: true,
+
+          data: { index_list: index },
+
+          success: function (dat) {
+            var jsonData = JSON.stringify(dat); // 转成JSON格式
+            for (let i = 0; i < dat.result.count; i++) {
+              var new_a_arr = [];
+              for (let i1 = 0; i1 < dat.result.all_data[i].data.length; i1++) {
+                var new_a_a_arr = [
+                  dat.result.all_data[i].data[i1].locate_x_float,
+                  dat.result.all_data[i].data[i1].locate_y_float,
+                ];
+                new_a_arr.push(new_a_a_arr);
+              }
+              selfffff.dia_trail_list.push(new_a_arr);
+            }
+          },
         });
+        let fun = () => {
+          this.$refs.map.addLineMarker(selfffff.dia_trail_list);
+          this.$notify({
+            title: "成功",
+            message: "已完成人员轨迹展示",
+            type: "success",
+          });
+        };
+        let sleep = function (fun, time) {
+          setTimeout(() => {
+            fun();
+          }, time);
+        };
+        sleep(fun, 2000);
         this.tab = 0;
       }
     },
@@ -421,7 +454,7 @@ export default {
     },
     //核酸采样辅助->采样点管理
     testPlaceM() {
-      this.tab = 4;
+      this.tab = 3;
     },
     //核酸采样辅助->添加新采样点
     chooseNewTP() {
