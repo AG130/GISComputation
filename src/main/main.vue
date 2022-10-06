@@ -324,20 +324,30 @@ export default {
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          alert(jsonData);
-
           for (var i = 0; i < dat.result.data.length; i++) {
-            var will_append = {
-              locate_x_float: dat.result.data[i].locate_x_float,
-              locate_y_float: dat.result.data[i].locate_y_float,
-            };
-
-            // self.db_p_info.push(will_append)
+            var will_append = [
+              dat.result.data[i].locate_x_float,
+              dat.result.data[i].locate_y_float
+          ];
+            selfffff.showSearchedP.push(will_append);
           }
         },
       });
-
-      alert("查询完成");
+      let fun = () => {
+        this.$refs.map.showTestP(this.showSearchedP);
+        this.$notify({
+          title: "成功",
+          message: "查询完成",
+          type: "success",
+        });
+      };
+      let sleep = function (fun, time) {
+        setTimeout(() => {
+          fun();
+        }, time);
+      };
+      sleep(fun, 3000);
+      this.p_s_vis=false
     },
     //核酸人员管理->地图导出
     saveMap() {
@@ -457,7 +467,7 @@ export default {
               },
             });
             let fun = () => {
-              for(let i=0;i<this.dia_trail_list.length;i++){
+              for (let i = 0; i < this.dia_trail_list.length; i++) {
                 this.$refs.map.createDiaPArea(this.dia_trail_list[i], value);
               }
               this.$notify({

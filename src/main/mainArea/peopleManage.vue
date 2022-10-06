@@ -257,6 +257,7 @@ export default {
   methods: {
     //人员信息表初始化
     people_input(){
+      this.db_p_info=[]
       const self=this;
       $.ajax({
         url: '/api/all_post_type_value/',
@@ -499,6 +500,15 @@ export default {
       })
 
       this.new_p_input_vis = false;
+      this.new_p_form.id = "";
+      this.new_p_form.name = "";
+      this.new_p_form.p_id = "";
+      this.new_p_form.p_address = "";
+      this.new_p_form.x = "";
+      this.new_p_form.y = "";
+      this.new_p_form.p_phone = "";
+      this.new_p_form.testData = "";
+      this.new_p_form.testResult = "";
     },
     //分页有关（start）
     handleSizeChange(size) {
