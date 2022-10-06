@@ -483,7 +483,6 @@ export default {
             };
             sleep(fun, 2000);
             this.tab = 0;
-            this.tab = 0;
           })
           .catch(() => {
             this.$message({
