@@ -43,7 +43,7 @@
           width="150"
         ></el-table-column>
         <el-table-column
-          property="testData"
+          property="testDate"
           label="核酸检测日期"
           width="150"
         ></el-table-column>
@@ -122,7 +122,7 @@
           </el-form-item>
           <el-form-item label="核酸检测日期" :label-width="p_form_width">
             <el-input
-              v-model="new_p_form.testData"
+              v-model="new_p_form.testDate"
               auto-complete="off"
               placeholder="输入格式为数字，如2022年10月1日即输入20221001"
             ></el-input>
@@ -171,7 +171,7 @@
             <el-input v-model="p_form.p_phone" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="核酸检测日期" :label-width="p_form_width">
-            <el-input v-model="p_form.testData" auto-complete="off"></el-input>
+            <el-input v-model="p_form.testDate" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="核酸结果" :label-width="p_form_width">
             <el-select v-model="p_form.testResult" placeholder="结果">
@@ -215,7 +215,7 @@ export default {
         x: "",
         y: "",
         p_phone: "",
-        testData: "",
+        testDate: "",
         testResult: "",
       },
       //修改人员信息
@@ -227,7 +227,7 @@ export default {
         x: "",
         y: "",
         p_phone: "",
-        testData: "",
+        testDate: "",
         testResult: "",
       },
       testResult: [
@@ -268,14 +268,14 @@ export default {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
           for (var i = 0; i < dat.result.data.length; i++) {
             var will_append = {
-              id: dat.result.data[i].id,
+              id: dat.result.data[i].table_id,
               name: dat.result.data[i].name,
               p_id: dat.result.data[i].id_card,
               p_address: dat.result.data[i].address,
-              x: dat.result.data[i].lon,
-              y: dat.result.data[i].lat,
+              x: dat.result.data[i].lat,
+              y: dat.result.data[i].lon,
               p_phone: dat.result.data[i].phone,
-              testData: dat.result.data[i].checkdata,
+              testDate: dat.result.data[i].checkdate,
               testResult: dat.result.data[i].result,
             };
             self.db_p_info.push(will_append);
@@ -310,10 +310,10 @@ export default {
       });
 
       this.$notify({
-            title: "成功",
-            message: "已删除",
-            type: "success",
-          });
+        title: "成功",
+        message: "人员已删除",
+        type: "success",
+      });
 
       this.db_p_info.splice(index, 1);
     },
@@ -327,7 +327,7 @@ export default {
       this.p_form.x = "";
       this.p_form.y = "";
       this.p_form.p_phone = "";
-      this.p_form.testData = "";
+      this.p_form.testDate = "";
       this.p_form.testResult = "";
     },
     //确认修改
@@ -343,24 +343,17 @@ export default {
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
         dataType: "json",
         data: { id: this.p_form.id, type: "id_card", value: this.p_form.p_id },
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
@@ -370,40 +363,30 @@ export default {
           type: "address",
           value: this.p_form.p_address,
         },
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
         dataType: "json",
-        data: { id: this.p_form.id, type: "lon", value: this.p_form.x },
+        data: { id: this.p_form.id, type: "lat", value: this.p_form.x },
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
         dataType: "json",
-        data: { id: this.p_form.id, type: "lat", value: this.p_form.y },
+        data: { id: this.p_form.id, type: "lon", value: this.p_form.y },
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
@@ -412,28 +395,22 @@ export default {
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
         dataType: "json",
         data: {
           id: this.p_form.id,
-          type: "checkdata",
-          value: this.p_form.testData,
+          type: "checkdate",
+          value: this.p_form.testDate,
         },
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
-
       $.ajax({
         url: "/api/change_from_db/",
         type: "GET",
@@ -446,11 +423,10 @@ export default {
 
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          // alert(jsonData);
-          // alert(dat.result);
         },
       });
 
+      this.people_input();
       this.changePInfo_vis = false;
     },
     //取消新增
@@ -463,7 +439,7 @@ export default {
       this.new_p_form.x = "";
       this.new_p_form.y = "";
       this.new_p_form.p_phone = "";
-      this.new_p_form.testData = "";
+      this.new_p_form.testDate = "";
       this.new_p_form.testResult = "";
     },
     //确认新增
@@ -476,7 +452,7 @@ export default {
         x: this.new_p_form.x,
         y: this.new_p_form.y,
         p_phone: this.new_p_form.p_phone,
-        testData: this.new_p_form.testData,
+        testDate: this.new_p_form.testDate,
         testResult: this.new_p_form.testResult,
       };
       this.db_p_info.push(row);
@@ -486,26 +462,24 @@ export default {
         type: "GET",
         dataType: "json",
         data: {
-          value: [
-            {
-              name: row.name,
-              sex: " ",
-              id_card: row.p_id,
-              checkdata: row.testData,
-              result: row.testResult,
-              responsibilityman: " ",
-              lon: row.x,
-              lat: row.y,
-              phone: row.p_phone,
-              address: row.p_address,
-            },
-          ],
+          table_id: row.id,
+          name: row.name,
+          id_card: row.p_id,
+          address: row.p_address,
+          lat: row.x,
+          lon: row.y,
+          phone: row.p_phone,
+          checkdate: row.testDate,
+          result: row.testResult,
         },
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          alert("success");
         },
+      });
+      this.$notify({
+        title: "成功",
+        type: "success",
+        message: "人员添加成功",
       });
 
       this.new_p_input_vis = false;
@@ -516,7 +490,7 @@ export default {
       this.new_p_form.x = "";
       this.new_p_form.y = "";
       this.new_p_form.p_phone = "";
-      this.new_p_form.testData = "";
+      this.new_p_form.testDate = "";
       this.new_p_form.testResult = "";
     },
     //分页有关（start）
