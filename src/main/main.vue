@@ -351,12 +351,21 @@ export default {
     },
     //核酸人员管理->地图导出
     saveMap() {
-      this.$refs.map.saveMap();
-      this.$notify({
+      this.tab=0
+      let fun =()=>{
+        this.$refs.map.saveMap();
+        this.$notify({
         title: "成功",
         message: "地图已导出，请查看下载文件",
         type: "success",
       });
+      }
+      let sleep = function (fun, time) {
+        setTimeout(() => {
+          fun();
+        }, time);
+      };
+      sleep(fun,2000)
     },
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {

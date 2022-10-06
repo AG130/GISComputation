@@ -41,7 +41,7 @@ import utils from "@/utils";
 import * as turf from "@turf/turf";
 
 export default {
-  inject: ["locatePlace_form"],
+  inject: ["locatePlace_form","changeView"],
   data() {
     return {
       //地图框架
@@ -302,7 +302,6 @@ export default {
         //type 表示勾绘的要素包含的 geometry 类型
         type: type,
       });
-
       //绘制结束时触发的事件
       this.draw.on("drawend", function (e) {
         const geometry = e.feature.getGeometry();
@@ -312,6 +311,8 @@ export default {
         self.pTrail.push(self.coordinate);
         self.coordinate = [];
         self.removeDraw();
+        self.changeView(2)
+        self.trailSource.getSource().removeFeature(this.draw)
       });
       self.map.addInteraction(this.draw);
     },
@@ -400,6 +401,8 @@ export default {
         }
         self.coordinate = [];
         self.removeDraw();
+        self.changeView(3)
+        self.trailSource.getSource().removeFeature(this.draw)
       });
       self.map.addInteraction(this.draw);
     },
@@ -467,7 +470,7 @@ export default {
 <style>
 #mapDiv {
   width: 100%;
-  height: 500px;
+  height: 600px;
 }
 
 #mapDiv .ol-zoom .ol-zoom-out {

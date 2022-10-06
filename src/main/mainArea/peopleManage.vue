@@ -124,6 +124,7 @@
             <el-input
               v-model="new_p_form.testData"
               auto-complete="off"
+              placeholder="输入格式为数字，如2022年10月1日即输入20221001"
             ></el-input>
           </el-form-item>
           <el-form-item label="核酸结果" :label-width="p_form_width">
@@ -198,8 +199,7 @@ export default {
   data() {
     return {
       //人员信息表
-      db_p_info: [
-      ],
+      db_p_info: [],
       //新增信息窗口可视
       new_p_input_vis: false,
       //修改信息窗口可视
@@ -256,38 +256,35 @@ export default {
 
   methods: {
     //人员信息表初始化
-    people_input(){
-      this.db_p_info=[]
-      const self=this;
+    people_input() {
+      this.db_p_info = [];
+      const self = this;
       $.ajax({
-        url: '/api/all_post_type_value/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'type': "id", 'value': "1"},
-
+        url: "/api/all_post_type_value/",
+        type: "GET",
+        dataType: "json",
+        data: { type: "id", value: "1" },
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
-          for (var i=0;i<dat.result.data.length;i++) {
-            var will_append={
-              id:dat.result.data[i].id,
-              name:dat.result.data[i].name,
-              p_id:dat.result.data[i].id_card,
-              p_address:dat.result.data[i].address,
-              x:dat.result.data[i].lon,
-              y:dat.result.data[i].lat,
-              p_phone:dat.result.data[i].phone,
-              testData:dat.result.data[i].checkdata,
-              testResult:dat.result.data[i].result,
-
-
-            }
-            self.db_p_info.push(will_append)
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+          for (var i = 0; i < dat.result.data.length; i++) {
+            var will_append = {
+              id: dat.result.data[i].id,
+              name: dat.result.data[i].name,
+              p_id: dat.result.data[i].id_card,
+              p_address: dat.result.data[i].address,
+              x: dat.result.data[i].lon,
+              y: dat.result.data[i].lat,
+              p_phone: dat.result.data[i].phone,
+              testData: dat.result.data[i].checkdata,
+              testResult: dat.result.data[i].result,
+            };
+            self.db_p_info.push(will_append);
           }
         },
         error: function () {
-          alert('服务器超时，请重试！');
-        }
-      })
+          alert("服务器超时，请重试！");
+        },
+      });
     },
     //新增人员信息
     addNewPInfo() {
@@ -301,18 +298,22 @@ export default {
     },
     // 删除行
     handleDelete(index, row) {
-      const selfff=this;
+      const selfff = this;
       $.ajax({
-        url: '/api/delete_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'value': selfff.db_p_info[index].p_id},
-
+        url: "/api/delete_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { value: selfff.db_p_info[index].id },
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
-          alert("删除成功")
-        }
-      })
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+        },
+      });
+
+      this.$notify({
+            title: "成功",
+            message: "已删除",
+            type: "success",
+          });
 
       this.db_p_info.splice(index, 1);
     },
@@ -335,119 +336,122 @@ export default {
       //用户所填内容存于p_form中
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "name", 'value': this.p_form.name},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { id: this.p_form.id, type: "name", value: this.p_form.name },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "id_card", 'value': this.p_form.p_id},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { id: this.p_form.id, type: "id_card", value: this.p_form.p_id },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "address", 'value': this.p_form.p_address},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.p_form.id,
+          type: "address",
+          value: this.p_form.p_address,
+        },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "lon", 'value': this.p_form.x},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { id: this.p_form.id, type: "lon", value: this.p_form.x },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "lat", 'value': this.p_form.y},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { id: this.p_form.id, type: "lat", value: this.p_form.y },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "phone", 'value': this.p_form.p_phone},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: { id: this.p_form.id, type: "phone", value: this.p_form.p_phone },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "checkdata", 'value': this.p_form.testData},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.p_form.id,
+          type: "checkdata",
+          value: this.p_form.testData,
+        },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       $.ajax({
-        url: '/api/change_from_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'id': this.p_form.id, 'type': "result", 'value': this.p_form.testResult},
+        url: "/api/change_from_db/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.p_form.id,
+          type: "result",
+          value: this.p_form.testResult,
+        },
 
         success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
           // alert(jsonData);
           // alert(dat.result);
-
-        }
-      })
+        },
+      });
 
       this.changePInfo_vis = false;
-
     },
     //取消新增
     cancel_new_p_input() {
@@ -478,26 +482,31 @@ export default {
       this.db_p_info.push(row);
 
       $.ajax({
-        url: '/api/add_to_db/',
-        type: 'GET',
-        dataType: 'json',
-        data: {'value':
-              [
-                {'name': row.name, 'sex': ' ',
-                  'id_card': row.p_id, 'checkdata': row.testData,
-                  'result': row.testResult, 'responsibilityman': ' ',
-                  'lon': row.x, 'lat': row.y ,'phone':row.p_phone,
-                  'address':row.p_address},
-              ]
-        }
-
-        ,
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat);// 转成JSON格式
-          alert("success")
+        url: "/api/add_to_db/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          value: [
+            {
+              name: row.name,
+              sex: " ",
+              id_card: row.p_id,
+              checkdata: row.testData,
+              result: row.testResult,
+              responsibilityman: " ",
+              lon: row.x,
+              lat: row.y,
+              phone: row.p_phone,
+              address: row.p_address,
+            },
+          ],
         },
 
-      })
+        success: function (dat) {
+          var jsonData = JSON.stringify(dat); // 转成JSON格式
+          alert("success");
+        },
+      });
 
       this.new_p_input_vis = false;
       this.new_p_form.id = "";

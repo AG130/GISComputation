@@ -76,8 +76,6 @@ export default {
 
           success: function (dat) {
             var jsonData = JSON.stringify(dat); // 转成JSON格式
-            // alert(jsonData);
-            alert(dat.result);
             if (dat.result == "success") {
               window.sessionStorage.setItem("isLogin", "true"); //登陆成功
               that.$router.push({
@@ -85,16 +83,10 @@ export default {
                 params: { username: that.form.useremail },
               });
             } else {
-              alert("fail");
+              that.$message.error("账号或密码错误！");
             }
           },
         });
-
-        // window.sessionStorage.setItem("isLogin", "true");//登陆成功
-        // that.$router.push({
-        //   name: "main",
-        //   params: { username: this.form.useremail },
-        // });
       } else if (that.form.useremail == "" && that.form.userpwd == "") {
         that.eEmpty = true;
         that.pEmpty = true;

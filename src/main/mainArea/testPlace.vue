@@ -8,6 +8,7 @@
             currentPage * pageSize
           )
         "
+        style="width: 100%"
       >
         <el-table-column prop="t_id" label="序号" width="50"></el-table-column>
         <el-table-column
@@ -18,11 +19,11 @@
         <el-table-column
           prop="t_address"
           label="地址"
-          width="300"
+          width="400"
         ></el-table-column>
-        <el-table-column prop="x" label="经度" width="150"></el-table-column>
-        <el-table-column prop="y" label="纬度" width="150"></el-table-column>
-        <el-table-column label="操作" width="145">
+        <el-table-column prop="x" label="经度" width="180"></el-table-column>
+        <el-table-column prop="y" label="纬度" width="180"></el-table-column>
+        <el-table-column label="操作" width="145" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
               >编辑</el-button
@@ -185,13 +186,13 @@ export default {
   },
   methods: {
     people_input(){
+      this.testPlace_form=[]
       const self=this;
       $.ajax({
         url: '/api/explore_all_check_point/',
         type: 'GET',
         dataType: 'json',
         data: {'type': "id", 'value': "1"},
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat);// 转成JSON格式
           for (var i=0;i<dat.result.data.length;i++) {
@@ -201,7 +202,6 @@ export default {
               t_address:dat.result.data[i].poind_address,
               x:dat.result.data[i].locate_x_float,
               y:dat.result.data[i].locate_y_float,
-
             }
             self.testPlace_form.push(will_append)
           }
@@ -214,6 +214,7 @@ export default {
 
     //新增核酸检测点
     addNewTestPlace() {
+      this.newTestP_xy=[]
       this.newTPForm_vis = true;
     },
     //选取新检测点
@@ -226,7 +227,7 @@ export default {
       this.tpForm_vis = true;
       this.tP_form = Object.assign({}, row);
       this.newTestP_xy =
-        this.testPlace_form[index].x + this.testPlace_form[index].y;
+        [this.testPlace_form[index].x , this.testPlace_form[index].y]
       utils.$emit("index", index);
     },
     //删除
@@ -237,13 +238,15 @@ export default {
         type: 'GET',
         dataType: 'json',
         data: {'point_id': selfff.testPlace_form[index].t_id},
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat);// 转成JSON格式
-          alert("删除成功")
         }
       })
-
+      this.$notify({
+            title:'成功',
+            type:'success',
+            message:'已删除该采样点'
+          })
       this.testPlace_form.splice(index, 1);
     },
     //取消修改
@@ -292,16 +295,16 @@ export default {
           'locate_x_float':selffff.new_tP_form.x,
           'locate_y_float':selffff.new_tP_form.y,
         },
-
-
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat);// 转成JSON格式
-          alert("成功")
         }
       })
-      this.people_input()
-
+      this.$notify({
+            title:'成功',
+            type:'success',
+            message:'已添加新采样点'
+          })
+      this.testPlace_form.push(newTp)
       this.newTPForm_vis = false;
 
     },

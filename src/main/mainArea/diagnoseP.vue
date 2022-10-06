@@ -160,8 +160,9 @@ export default {
     };
   },
   methods: {
-    //新增阳性轨迹点
+    //轨迹列表初始化
     people_input_positive() {
+      this.dia_form=[]
       const self = this;
       $.ajax({
         url: "/api/api_get_positive_info/",
@@ -188,7 +189,7 @@ export default {
         },
       });
     },
-
+    //新增阳性轨迹点
     addNewDiaP() {
       this.newDiaPInput_vis = true;
     },
@@ -199,16 +200,23 @@ export default {
     },
     //取消轨迹录入
     cancel_DiaP_input() {
+      this.newDIaP_form.id = "";
       this.newDIaP_form.p_name = "";
       this.newDIaP_form.p_id = "";
       this.newDIaP_form.dia_time = "";
-      this.dia_trail = "";
+      this.newDIaP_form.dia_trail = "";
       this.dia_trail_xy = "";
       this.newDiaPInput_vis = false;
     },
     //确认轨迹输入
     conf_DiaP_input() {
-      //
+      let newTrail={
+        id:this.newDIaP_form.id,
+        p_name:this.newDIaP_form.p_name,
+        p_id:this.newDIaP_form.p_id,
+        dia_time:this.newDIaP_form.dia_time,
+        dia_trail:this.newDIaP_form.dia_trail,
+      }
       const selffff = this;
       $.ajax({
         url: "/api/api_add_line/",
@@ -223,17 +231,21 @@ export default {
           line_info: selffff.newDIaP_form.dia_trail,
           loc_x_y: selffff.dia_trail_xy,
         },
-
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          alert("成功");
         },
       });
-
+      this.$notify({
+            title:'成功',
+            type:'success',
+            message:'已添加新人员'
+          })
+      this.dia_form.push(newTrail)
+      this.newDIaP_form.id = "";
       this.newDIaP_form.p_name = "";
       this.newDIaP_form.p_id = "";
       this.newDIaP_form.dia_time = "";
-      this.dia_trail = "";
+      this.newDIaP_form.dia_trail = "";
       this.dia_trail_xy = "";
       this.newDiaPInput_vis = false;
     },
@@ -246,19 +258,20 @@ export default {
       })
         .then(() => {
           const selfffff = this;
-
           $.ajax({
             url: "/api/del_people_info/",
             type: "GET",
             dataType: "json",
             data: { line_id: selfffff.dia_form[index].id },
-
             success: function (dat) {
               var jsonData = JSON.stringify(dat); // 转成JSON格式
-              alert("删除成功");
             },
           });
-
+          this.$notify({
+            type:'success',
+            message:"人员已删除",
+            title:'成功'
+          })
           this.dia_form.splice(index, 1);
         })
         .catch(() => {
