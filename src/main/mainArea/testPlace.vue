@@ -210,7 +210,6 @@ export default {
         },
       });
     },
-
     //新增核酸检测点
     addNewTestPlace() {
       this.newTestP_xy = [];
@@ -261,9 +260,53 @@ export default {
     },
     //确认修改
     conf_tp_input() {
-      this.testPlace_form[this.tP_form.t_id - 1].x = this.tP_form.x;
-      this.testPlace_form[this.tP_form.t_id - 1].y = this.tP_form.y;
+      $.ajax({
+        url: "/api/edit_test_place/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.tP_form.t_id,
+          type: "t_name",
+          value: this.tP_form.t_name,
+        },
+      });
+      $.ajax({
+        url: "/api/edit_test_place/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.tP_form.t_id,
+          type: "t_address",
+          value: this.tP_form.t_address,
+        },
+      });
+      $.ajax({
+        url: "/api/edit_test_place/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.tP_form.t_id,
+          type: "x",
+          value: this.tP_form.x,
+        },
+      });
+      $.ajax({
+        url: "/api/edit_test_place/",
+        type: "GET",
+        dataType: "json",
+        data: {
+          id: this.tP_form.t_id,
+          type: "y",
+          value: this.tP_form.y,
+        },
+      });
 
+      this.people_input()
+      this.$notify({
+        title: "成功",
+        type: "success",
+        message: "人员修改成功",
+      });
       this.tpForm_vis = false;
     },
     //取消新增

@@ -427,6 +427,11 @@ export default {
       });
 
       this.people_input();
+      this.$notify({
+        title: "成功",
+        type: "success",
+        message: "人员修改成功",
+      });
       this.changePInfo_vis = false;
     },
     //取消新增
