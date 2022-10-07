@@ -440,7 +440,7 @@ export default {
           message: "请先勾选要展示的人员密接范围",
         });
       } else {
-        this.$prompt("请输入密接区域半径", "提示", {
+        this.$prompt("请输入密接区域半径(单位：米)", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
         })
