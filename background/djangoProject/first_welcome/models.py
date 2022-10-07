@@ -14,23 +14,15 @@ class User(AbstractUser):
         return self.name
 
 class gis_table(models.Model):
+    table_id = models.FloatField()
     name = models.CharField(max_length=50)    #姓名
     id_card = models.CharField(max_length=20)   #身份证
-    sex = models.CharField(max_length=2)    #性别
-    # checkdate = models.CharField(max_length=20)   #检测日期
-    checkdate = models.FloatField()   #检测日期
-
-    result = models.CharField(max_length=20)    #结果
-    responsibilityman=models.CharField(max_length=20)   #负责人
-
     address = models.CharField(max_length=20)
+    lat = models.FloatField()
+    lon = models.FloatField()
     phone = models.CharField(max_length=20)
-
-    locate_x=models.CharField(max_length=20)
-    locate_y=models.CharField(max_length=20)
-
-    locate_x_float=models.FloatField()
-    locate_y_float=models.FloatField()
+    checkdate = models.FloatField()   #检测日期
+    result = models.CharField(max_length=20)    #结果
 
 class positive_line_area(models.Model):
     center_lng=models.FloatField()
