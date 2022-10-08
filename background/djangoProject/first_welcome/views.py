@@ -158,7 +158,6 @@ def add_to_db(request):  # 增
     )
     return JsonResponse(data={'result': 'success'})
 
-
 def deleta_from_db(request):  # 删
     will_delete_id = request.GET.get('value')
     t = gis_table.objects.get(table_id=will_delete_id)
@@ -348,7 +347,7 @@ def del_people_info(request):
     t = positive_info.objects.get(line_id=will_delete_id)
     t.delete()
 
-    tt = positive_line.objects.get(line_id=will_delete_id)
+    tt = positive_line.objects.filter(line_id=will_delete_id)
     tt.delete()
 
     return JsonResponse(data={'result': 'success'})

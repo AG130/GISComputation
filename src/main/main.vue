@@ -40,7 +40,10 @@
                 <el-menu-item index="2-2" @click="showSearchPeople"
                   >未检核酸人员查询</el-menu-item
                 >
-                <el-menu-item index="2-3" @click="saveMap"
+                <el-menu-item index="2-3" @click="clearSearchResult"
+                  >清除查询</el-menu-item
+                >
+                <el-menu-item index="2-4" @click="saveMap"
                   >地图数据导出</el-menu-item
                 >
               </el-menu-item-group>
@@ -313,7 +316,6 @@ export default {
     searchP_conf() {
       // 查询未检核酸人员
       const selfffff = this;
-
       $.ajax({
         url: "/api/sevelal_day_without_check/",
         type: "GET",
@@ -334,7 +336,7 @@ export default {
         },
       });
       let fun = () => {
-        this.$refs.map.showTestP(this.showSearchedP);
+        this.$refs.map.showSearchP(this.showSearchedP);
         this.$notify({
           title: "成功",
           message: "查询完成",
@@ -348,6 +350,9 @@ export default {
       };
       sleep(fun, 3000);
       this.p_s_vis=false
+    },
+    clearSearchResult(){
+      this.$refs.map.clearSearchResult()
     },
     //核酸人员管理->地图导出
     saveMap() {

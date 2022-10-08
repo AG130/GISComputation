@@ -5,7 +5,7 @@
         id="mouseP"
         style="
           color: #fff;
-          position: absolute;
+          position: relative;
           bottom: 10px;
           right: 10px;
           z-index: 10000000;
@@ -41,14 +41,12 @@ import utils from "@/utils";
 import * as turf from "@turf/turf";
 
 export default {
-  inject: ["locatePlace_form","changeView"],
+  inject: ["locatePlace_form", "changeView"],
   data() {
     return {
       //地图框架
       map: null,
       OSMLayer: null,
-      trailLayer: null,
-
       tianDVec: null,
       tianDVec_cva: null,
       tianDImg: null,
@@ -56,7 +54,19 @@ export default {
 
       //绘制轨迹
       draw: null,
+      drawSource: null,
+      drawLayer: null,
+
+      //展示搜索点
+      searchPLayer: null,
+      searchPSource: null,
+      //展示轨迹
+      trailLayer: null,
       trailSource: null,
+      //展示采样点
+      testPLayer: null,
+      testPSource: null,
+
       //单条轨迹线
       coordinate: [],
       //所有轨迹线
@@ -92,17 +102,11 @@ export default {
         label: "\u00AB",
         collapsed: false,
       });
-      //线图层
-      this.trailSource = new VectorSource({ wrapX: false });
-      this.trailLayer = new VectorLayer({
-        source: this.trailSource,
-      });
-
-      //主地图
+      //OSM地图
       this.OSMLayer = new TileLayer({
         source: new OSM(),
       });
-      //ttd
+      //天地图
       this.tianDVec = new TileLayer({
         source: new XYZ({
           url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=224443b4550bb2e677a38122df9d6b35",
@@ -128,12 +132,31 @@ export default {
           wrapX: true,
         }),
       });
+      //绘制图层
+      this.drawSource = new VectorSource({ wrapX: false });
+      this.drawLayer = new VectorLayer({
+        source: this.drawSource,
+      });
+      //搜索点图层
+      this.searchPSource = new VectorSource({ wrapX: false });
+      this.searchPLayer = new VectorLayer({
+        source: this.searchPSource,
+      });
+      //轨迹展示图层
+      this.trailSource = new VectorSource({ wrapX: false });
+      this.trailLayer = new VectorLayer({
+        source: this.trailSource,
+      });
+      //
+      this.testPSource = new VectorSource({ wrapX: false });
+      this.testPLayer = new VectorLayer({
+        source: this.testPSource,
+      });
 
-      
-      this.tianDVec.setVisible(false)
-      this.tianDVec_cva.setVisible(false)
-      this.tianDImg.setVisible(false)
-      this.tianDImg_cia.setVisible(false)
+      this.tianDVec.setVisible(false);
+      this.tianDVec_cva.setVisible(false);
+      this.tianDImg.setVisible(false);
+      this.tianDImg_cia.setVisible(false);
       this.map = new Map({
         target: "mapDiv",
         layers: [
@@ -142,9 +165,11 @@ export default {
           this.tianDVec_cva,
           this.tianDImg,
           this.tianDImg_cia,
+          this.drawLayer,
+          this.searchPLayer,
           this.trailLayer,
+          this.testPLayer,
         ],
-        logo: false,
         view: new View({
           // 使用WGS84坐标系
           projection: "EPSG:4326",
@@ -292,13 +317,34 @@ export default {
       );
       save_link.dispatchEvent(event);
     },
+    //展示搜索人员
+    showSearchP(arr) {
+      var new_style = new Style({
+        image: new sCircle({
+          radius: 10,
+          stroke: new Stroke({
+            color: "#fff",
+          }),
+          fill: new Fill({
+            color: "#3399CC",
+          }),
+        }),
+      });
+      for (let i = 0; i < arr.length; i++) {
+        var point = new Feature({
+          geometry: new Point(arr[i]),
+        });
+        point.setStyle(new_style);
+        this.searchPLayer.getSource().addFeatures(point)
+      }
+    },
     //绘图线工具
     onAddInteraction(type) {
       let self = this;
       //勾绘矢量图形的类
       this.draw = new Draw({
         //source代表勾绘的要素属于的数据集
-        source: self.trailSource,
+        source: self.drawSource,
         //type 表示勾绘的要素包含的 geometry 类型
         type: type,
       });
@@ -311,8 +357,8 @@ export default {
         self.pTrail.push(self.coordinate);
         self.coordinate = [];
         self.removeDraw();
-        self.changeView(2)
-        self.trailSource.getSource().removeFeature(this.draw)
+        self.changeView(2);
+        self.drawSource.getSource().removeFeature(this.draw);
       });
       self.map.addInteraction(this.draw);
     },
@@ -386,7 +432,7 @@ export default {
       //勾绘矢量图形的类
       this.draw = new Draw({
         //source代表勾绘的要素属于的数据集
-        source: self.trailSource,
+        source: self.drawSource,
         //type 表示勾绘的要素包含的 geometry 类型
         type: type,
       });
@@ -401,8 +447,8 @@ export default {
         }
         self.coordinate = [];
         self.removeDraw();
-        self.changeView(3)
-        self.trailSource.getSource().removeFeature(this.draw)
+        self.changeView(3);
+        self.drawSource.getSource().removeFeature(this.draw);
       });
       self.map.addInteraction(this.draw);
     },
@@ -462,6 +508,9 @@ export default {
         target: document.getElementById("mouseP"),
       });
       this.map.addControl(MousePositionControl);
+    },
+    clearSearchResult() {
+      this.drawLayer = null;
     },
   },
 };

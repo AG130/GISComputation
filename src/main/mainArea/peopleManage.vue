@@ -334,98 +334,40 @@ export default {
     conf_p_input() {
       //依据changePInfo_row(即id)修改数据库中对应内容
       //用户所填内容存于p_form中
+      const self_change = this;
 
       $.ajax({
-        url: "/api/change_from_db/",
+        url: "/api/delete_from_db/",
         type: "GET",
         dataType: "json",
-        data: { id: this.p_form.id, type: "name", value: this.p_form.name },
-
+        contentType: "application/json",
+        processData: true,
+        data: { value: self_change.p_form.id }, //value为匹配
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
+          $.ajax({
+            url: "/api/add_to_db/",
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            processData: true,
+            data: {
+              table_id: self_change.p_form.id,
+              name: self_change.p_form.name,
+              id_card: self_change.p_form.p_id,
+              checkdate: self_change.p_form.testDate,
+              result: self_change.p_form.testResult,
+              lon: self_change.p_form.x,
+              lat: self_change.p_form.y,
+              phone: self_change.p_form.p_phone,
+              address: self_change.p_form.p_address,
+            },
+            success: function (dat) {
+              var jsonData = JSON.stringify(dat); // 转成JSON格式
+            },
+          });
         },
       });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: { id: this.p_form.id, type: "id_card", value: this.p_form.p_id },
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: {
-          id: this.p_form.id,
-          type: "address",
-          value: this.p_form.p_address,
-        },
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: { id: this.p_form.id, type: "lat", value: this.p_form.x },
-
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: { id: this.p_form.id, type: "lon", value: this.p_form.y },
-
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: { id: this.p_form.id, type: "phone", value: this.p_form.p_phone },
-
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: {
-          id: this.p_form.id,
-          type: "checkdate",
-          value: this.p_form.testDate,
-        },
-
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      $.ajax({
-        url: "/api/change_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: {
-          id: this.p_form.id,
-          type: "result",
-          value: this.p_form.testResult,
-        },
-
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-
       this.people_input();
       this.$notify({
         title: "成功",
