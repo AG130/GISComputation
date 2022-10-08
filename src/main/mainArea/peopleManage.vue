@@ -6,6 +6,7 @@
         :data="
           db_p_info.slice((currentPage - 1) * pageSize, currentPage * pageSize)
         "
+        :default-sort="{prop:'id'}"
       >
         <el-table-column
           property="id"
@@ -335,7 +336,6 @@ export default {
       //依据changePInfo_row(即id)修改数据库中对应内容
       //用户所填内容存于p_form中
       const self_change = this;
-
       $.ajax({
         url: "/api/delete_from_db/",
         type: "GET",
@@ -364,11 +364,11 @@ export default {
             },
             success: function (dat) {
               var jsonData = JSON.stringify(dat); // 转成JSON格式
+              self_change.people_input()
             },
           });
         },
       });
-      this.people_input();
       this.$notify({
         title: "成功",
         type: "success",
@@ -378,7 +378,6 @@ export default {
     },
     //取消新增
     cancel_new_p_input() {
-      this.new_p_input_vis = false;
       this.new_p_form.id = "";
       this.new_p_form.name = "";
       this.new_p_form.p_id = "";
@@ -388,6 +387,7 @@ export default {
       this.new_p_form.p_phone = "";
       this.new_p_form.testDate = "";
       this.new_p_form.testResult = "";
+      this.new_p_input_vis = false;
     },
     //确认新增
     conf_new_p_input() {
@@ -429,7 +429,6 @@ export default {
         message: "人员添加成功",
       });
 
-      this.new_p_input_vis = false;
       this.new_p_form.id = "";
       this.new_p_form.name = "";
       this.new_p_form.p_id = "";
@@ -439,6 +438,7 @@ export default {
       this.new_p_form.p_phone = "";
       this.new_p_form.testDate = "";
       this.new_p_form.testResult = "";
+      this.new_p_input_vis = false;
     },
     //分页有关（start）
     handleSizeChange(size) {

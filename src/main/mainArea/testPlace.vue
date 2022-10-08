@@ -9,6 +9,7 @@
           )
         "
         style="width: 100%"
+        :default-sort="{prop:'t_id'}"
       >
         <el-table-column prop="t_id" label="序号" width="50"></el-table-column>
         <el-table-column
@@ -198,7 +199,7 @@ export default {
             var will_append = {
               t_id: dat.result.data[i].point_id,
               t_name: dat.result.data[i].point_name,
-              t_address: dat.result.data[i].poind_address,
+              t_address: dat.result.data[i].point_address,
               x: dat.result.data[i].locate_x_float,
               y: dat.result.data[i].locate_y_float,
             };
@@ -267,7 +268,7 @@ export default {
         dataType: "json",
         contentType: "application/json",
         processData: true,
-        data: { value: self_change.p_form.id }, //value为匹配
+        data: { point_id: self_change.tP_form.t_id }, //value为匹配
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
           $.ajax({
@@ -277,19 +278,19 @@ export default {
             contentType: "application/json",
             processData: true,
             data: {
-              point_id: self_change.new_tP_form.t_id,
-              point_name: self_change.new_tP_form.t_name,
-              poind_address: self_change.new_tP_form.t_address,
-              locate_x_float: self_change.new_tP_form.x,
-              locate_y_float: self_change.new_tP_form.y,
+              point_id: self_change.tP_form.t_id,
+              point_name: self_change.tP_form.t_name,
+              point_address: self_change.tP_form.t_address,
+              locate_x_float: self_change.tP_form.x,
+              locate_y_float: self_change.tP_form.y,
             },
             success: function (dat) {
               var jsonData = JSON.stringify(dat); // 转成JSON格式
+              self_change.people_input()
             },
           });
         },
       });
-      this.people_input();
       this.$notify({
         title: "成功",
         type: "success",
@@ -324,7 +325,7 @@ export default {
         data: {
           point_id: selffff.new_tP_form.t_id,
           point_name: selffff.new_tP_form.t_name,
-          poind_address: selffff.new_tP_form.t_address,
+          point_address: selffff.new_tP_form.t_address,
           locate_x_float: selffff.new_tP_form.x,
           locate_y_float: selffff.new_tP_form.y,
         },

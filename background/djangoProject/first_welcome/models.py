@@ -49,7 +49,7 @@ class positive_info(models.Model):
 class check_point(models.Model):
     point_id=models.CharField(max_length=20)
     point_name=models.CharField(max_length=20)
-    poind_address=models.CharField(max_length=100)
+    point_address=models.CharField(max_length=100)
     locate_x_float = models.FloatField()
     locate_y_float=models.FloatField()
 

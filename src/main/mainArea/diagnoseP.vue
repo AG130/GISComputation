@@ -9,6 +9,7 @@
         style="width: 100%"
         ref="dia_table"
         @selection-change="handleSelectionChange"
+        :default-sort="{prop:'id'}"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="id" label="序号" width="50"></el-table-column>

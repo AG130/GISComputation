@@ -25,7 +25,7 @@ import GeoJSON from "ol/format/GeoJSON";
 import OSM from "ol/source/OSM";
 import { Map, View, Feature, Tile } from "ol";
 import { LineString, Point } from "ol/geom";
-import { Style, Fill, Stroke, Circle as sCircle } from "ol/style";
+import { Style, Fill, Stroke, Icon, Circle } from "ol/style";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource, XYZ } from "ol/source";
 import { createStringXY } from "ol/coordinate";
@@ -63,6 +63,9 @@ export default {
       //展示轨迹
       trailLayer: null,
       trailSource: null,
+      //缓冲区
+      trailBufferLayer: null,
+      trailBufferSource: null,
       //展示采样点
       testPLayer: null,
       testPSource: null,
@@ -147,7 +150,11 @@ export default {
       this.trailLayer = new VectorLayer({
         source: this.trailSource,
       });
-      //
+      this.trailBufferSource = new VectorSource({ wrapX: false });
+      this.trailBufferLayer = new VectorLayer({
+        source: this.trailBufferSource,
+      });
+      //核酸检测点图层
       this.testPSource = new VectorSource({ wrapX: false });
       this.testPLayer = new VectorLayer({
         source: this.testPSource,
@@ -165,10 +172,11 @@ export default {
           this.tianDVec_cva,
           this.tianDImg,
           this.tianDImg_cia,
-          this.drawLayer,
+          this.trailBufferLayer,
           this.searchPLayer,
           this.trailLayer,
           this.testPLayer,
+          this.drawLayer,
         ],
         view: new View({
           // 使用WGS84坐标系
@@ -320,7 +328,7 @@ export default {
     //展示搜索人员
     showSearchP(arr) {
       var new_style = new Style({
-        image: new sCircle({
+        image: new Circle({
           radius: 10,
           stroke: new Stroke({
             color: "#fff",
@@ -335,8 +343,12 @@ export default {
           geometry: new Point(arr[i]),
         });
         point.setStyle(new_style);
-        this.searchPLayer.getSource().addFeatures(point)
+        this.searchPLayer.getSource().addFeature(point);
       }
+    },
+    //清空搜索
+    clearSearchResult() {
+      this.searchPLayer.getSource().clear();
     },
     //绘图线工具
     onAddInteraction(type) {
@@ -403,28 +415,28 @@ export default {
           geometry: new LineString(arr[i]),
         });
         marker.setStyle(lineStyle);
-        var line = new VectorLayer({
-          source: new VectorSource({
-            features: [marker],
-          }),
-        });
-        this.map.addLayer(line);
+        this.trailLayer.getSource().addFeature(marker);
       }
+    },
+    //清空路径
+    clearTrail() {
+      this.trailLayer.getSource().clear();
     },
     //生成密接范围
     createDiaPArea(arr, meters) {
       var line = turf.lineString(arr);
       var buffered = turf.buffer(line, meters, { units: "meters" });
       var format = new GeoJSON();
-      var source = new VectorSource({ wrapX: false });
       // //读取geojson数据
       var lineFeature = format.readFeature(line);
       var bufferFeature = format.readFeature(buffered);
       // //将数据添加数据源的
-      source.addFeature(lineFeature);
-      source.addFeature(bufferFeature);
-      var test = new VectorLayer({ source: source });
-      this.map.addLayer(test);
+      this.trailBufferSource.addFeature(lineFeature);
+      this.trailBufferSource.addFeature(bufferFeature);
+    },
+    //清空密接范围
+    clearBuffer() {
+      this.trailBufferLayer.getSource().clear();
     },
     //绘图点工具
     onAddPoint(type) {
@@ -455,7 +467,7 @@ export default {
     //绘制点
     addPoint() {
       let selectedStyle = new Style({
-        image: new sCircle({
+        image: new Circle({
           radius: 5,
           stroke: new Stroke({
             color: "#fff",
@@ -477,14 +489,8 @@ export default {
     //展示核酸采样点
     showTestP(arr) {
       var new_style = new Style({
-        image: new sCircle({
-          radius: 10,
-          stroke: new Stroke({
-            color: "#fff",
-          }),
-          fill: new Fill({
-            color: "#3399CC",
-          }),
+        image: new Icon({
+          src: "../../loc.png",
         }),
       });
       for (let i = 0; i < arr.length; i++) {
@@ -492,13 +498,11 @@ export default {
           geometry: new Point(arr[i]),
         });
         point.setStyle(new_style);
-        var new_marker = new VectorLayer({
-          source: new VectorSource({
-            features: [point],
-          }),
-        });
-        this.map.addLayer(new_marker);
+        this.testPLayer.getSource().addFeature(point);
       }
+    },
+    clearTestPosition() {
+      this.testPLayer.getSource().clear();
     },
     initMouse() {
       var MousePositionControl = new MousePosition({
@@ -508,9 +512,6 @@ export default {
         target: document.getElementById("mouseP"),
       });
       this.map.addControl(MousePositionControl);
-    },
-    clearSearchResult() {
-      this.drawLayer = null;
     },
   },
 };

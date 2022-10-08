@@ -139,6 +139,7 @@ def all_explore_form_db(request):  # 查
         row_dict['checkdate'] = row.checkdate
         row_dict['result'] = row.result
         dict['data'].append(row_dict)
+        print(row_dict)
     return JsonResponse(data={'result': dict})
 
 
@@ -381,7 +382,7 @@ def from_positive_line_get_line(request):
 def add_check_point(request):
     check_point.objects.create(point_id=request.GET.get('point_id'),
                                point_name=request.GET.get('point_name'),
-                               poind_address=request.GET.get('poind_address'),
+                               point_address=request.GET.get('point_address'),
                                locate_x_float=request.GET.get('locate_x_float'),
                                locate_y_float=request.GET.get('locate_y_float'))
 
@@ -390,7 +391,6 @@ def add_check_point(request):
 
 def del_check_point(request):
     will_delete_id = request.GET.get('point_id')
-
     t = check_point.objects.get(point_id=will_delete_id)
     t.delete()
 
@@ -408,7 +408,7 @@ def explore_all_check_point(request):
         row_dict = {}
         row_dict['point_id'] = row.point_id
         row_dict['point_name'] = row.point_name
-        row_dict['poind_address'] = row.poind_address
+        row_dict['point_address'] = row.point_address
         row_dict['locate_x_float'] = row.locate_x_float
         row_dict['locate_y_float'] = row.locate_y_float
         dict['data'].append(row_dict)
@@ -439,7 +439,11 @@ def edit_test_place(request):
     change_id = request.GET.get('id')
     change_type = request.GET.get('type')
     change_value = request.GET.get('value')
-    if change_type == "t_name":
+    if change_type == "t_id":
+        t = check_point.objects.get(point_id=change_id)
+        t.point_id = change_value
+        t.save()
+    elif change_type == "t_name":
         t = check_point.objects.get(point_id=change_id)
         t.point_name = change_value
         t.save()

@@ -57,8 +57,14 @@
                 <el-menu-item index="3-2" @click="createTrail"
                   >生成路径</el-menu-item
                 >
-                <el-menu-item index="3-3" @click="showDiaPArea"
+                <el-menu-item index="3-3" @click="clearTrail"
+                  >清空路径</el-menu-item
+                >
+                <el-menu-item index="3-4" @click="showDiaPArea"
                   >密接区域范围</el-menu-item
+                >
+                <el-menu-item index="3-5" @click="clearBuffer"
+                  >清空密接范围</el-menu-item
                 >
               </el-menu-item-group>
             </el-submenu>
@@ -70,6 +76,9 @@
                 >
                 <el-menu-item index="4-2" @click="showTP"
                   >展示所有采样点</el-menu-item
+                >
+                <el-menu-item index="4-3" @click="clearTestPosition"
+                  >清空展示</el-menu-item
                 >
               </el-menu-item-group>
             </el-submenu>
@@ -329,8 +338,8 @@ export default {
           for (var i = 0; i < dat.result.data.length; i++) {
             var will_append = [
               dat.result.data[i].locate_x_float,
-              dat.result.data[i].locate_y_float
-          ];
+              dat.result.data[i].locate_y_float,
+            ];
             selfffff.showSearchedP.push(will_append);
           }
         },
@@ -349,28 +358,34 @@ export default {
         }, time);
       };
       sleep(fun, 3000);
-      this.p_s_vis=false
+      this.p_s_vis = false;
     },
-    clearSearchResult(){
-      this.$refs.map.clearSearchResult()
+    //核酸人员管理->未检核酸人员查询->清除查询
+    clearSearchResult() {
+      this.$refs.map.clearSearchResult();
+      this.$notify({
+        title: "成功",
+        message: "已清除标点",
+        type: "success",
+      });
     },
     //核酸人员管理->地图导出
     saveMap() {
-      this.tab=0
-      let fun =()=>{
+      this.tab = 0;
+      let fun = () => {
         this.$refs.map.saveMap();
         this.$notify({
-        title: "成功",
-        message: "地图已导出，请查看下载文件",
-        type: "success",
-      });
-      }
+          title: "成功",
+          message: "地图已导出，请查看下载文件",
+          type: "success",
+        });
+      };
       let sleep = function (fun, time) {
         setTimeout(() => {
           fun();
         }, time);
       };
-      sleep(fun,2000)
+      sleep(fun, 2000);
     },
     //轨迹分析->阳性轨迹点展示
     showDiagnoseP() {
@@ -433,6 +448,15 @@ export default {
         sleep(fun, 2000);
         this.tab = 0;
       }
+    },
+    //轨迹分析->清空路径
+    clearTrail() {
+      this.$refs.map.clearTrail()
+      this.$notify({
+        title: "成功",
+        message: "已清除路径",
+        type: "success",
+      });
     },
     //轨迹分析->密接区域范围
     showDiaPArea() {
@@ -506,6 +530,15 @@ export default {
           });
       }
     },
+    //轨迹分析->清空密接区域
+    clearBuffer() {
+      this.$refs.map.clearBuffer()
+      this.$notify({
+        title: "成功",
+        message: "已清除密接区域",
+        type: "success",
+      });
+    },
     //核酸采样辅助->采样点管理
     testPlaceM() {
       this.tab = 3;
@@ -533,6 +566,14 @@ export default {
         type: "success",
       });
     },
+    clearTestPosition(){
+      this.$refs.map.clearTestPosition()
+      this.$notify({
+        title: "成功",
+        message: "已清除采样点",
+        type: "success",
+      });
+    }
   },
 };
 </script>
