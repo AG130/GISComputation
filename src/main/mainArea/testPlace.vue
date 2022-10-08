@@ -9,7 +9,7 @@
           )
         "
         style="width: 100%"
-        :default-sort="{prop:'t_id'}"
+        :default-sort="{ prop: 't_id' }"
       >
         <el-table-column prop="t_id" label="序号" width="50"></el-table-column>
         <el-table-column
@@ -66,7 +66,11 @@
       <el-dialog title="新增核酸采样点" :visible.sync="newTPForm_vis">
         <el-form :model="new_tP_form">
           <el-form-item label="序号" :label-width="new_tP_form_width">
-            <el-input v-model="new_tP_form.t_id" auto-complete="off"></el-input>
+            <el-input
+              v-model="new_tP_form.t_id"
+              auto-complete="off"
+              :disabled="true"
+            ></el-input>
           </el-form-item>
           <el-form-item label="名称" :label-width="new_tP_form_width">
             <el-input
@@ -106,7 +110,11 @@
       <el-dialog title="修改核酸采样点" :visible.sync="tpForm_vis">
         <el-form :model="tP_form">
           <el-form-item label="序号" :label-width="new_tP_form_width">
-            <el-input v-model="tP_form.t_id" auto-complete="off"></el-input>
+            <el-input
+              v-model="tP_form.t_id"
+              auto-complete="off"
+              :disabled="true"
+            ></el-input>
           </el-form-item>
           <el-form-item label="名称" :label-width="new_tP_form_width">
             <el-input v-model="tP_form.t_name" auto-complete="off"></el-input>
@@ -214,6 +222,7 @@ export default {
     //新增核酸检测点
     addNewTestPlace() {
       this.newTestP_xy = [];
+      this.new_tP_form.t_id = this.testPlace_form.length + 1;
       this.newTPForm_vis = true;
     },
     //选取新检测点
@@ -233,22 +242,35 @@ export default {
     },
     //删除
     handleDelete(index, row) {
-      const selfff = this;
-      $.ajax({
-        url: "/api/del_check_point/",
-        type: "GET",
-        dataType: "json",
-        data: { point_id: selfff.testPlace_form[index].t_id },
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
-      this.$notify({
-        title: "成功",
-        type: "success",
-        message: "已删除该采样点",
-      });
-      this.testPlace_form.splice(index, 1);
+      this.$confirm("是否删除该核酸采样点？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const selfff = this;
+          $.ajax({
+            url: "/api/del_check_point/",
+            type: "GET",
+            dataType: "json",
+            data: { point_id: selfff.testPlace_form[index].t_id },
+            success: function (dat) {
+              var jsonData = JSON.stringify(dat); // 转成JSON格式
+              selfff.people_input();
+            },
+          });
+          this.$notify({
+            title: "成功",
+            type: "success",
+            message: "已删除该采样点",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     //取消修改
     cancel_tp_input() {
@@ -262,33 +284,51 @@ export default {
     //确认修改
     conf_tp_input() {
       const self_change = this;
+      // $.ajax({
+      //   url: "/api/del_check_point/",
+      //   type: "GET",
+      //   dataType: "json",
+      //   contentType: "application/json",
+      //   processData: true,
+      //   data: { point_id: self_change.tP_form.t_id }, //value为匹配
+      //   success: function (dat) {
+      //     var jsonData = JSON.stringify(dat); // 转成JSON格式
+      //     $.ajax({
+      //       url: "/api/add_check_point/",
+      //       type: "GET",
+      //       dataType: "json",
+      //       contentType: "application/json",
+      //       processData: true,
+      //       data: {
+      //         point_id: self_change.tP_form.t_id,
+      //         point_name: self_change.tP_form.t_name,
+      //         point_address: self_change.tP_form.t_address,
+      //         locate_x_float: self_change.tP_form.x,
+      //         locate_y_float: self_change.tP_form.y,
+      //       },
+      //       success: function (dat) {
+      //         var jsonData = JSON.stringify(dat); // 转成JSON格式
+      //         self_change.people_input()
+      //       },
+      //     });
+      //   },
+      // });
       $.ajax({
-        url: "/api/del_check_point/",
+        url: "/api/edit_test_place/",
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         processData: true,
-        data: { point_id: self_change.tP_form.t_id }, //value为匹配
+        data: {
+          point_id: self_change.tP_form.t_id,
+          point_name: self_change.tP_form.t_name,
+          point_address: self_change.tP_form.t_address,
+          locate_x_float: self_change.tP_form.x,
+          locate_y_float: self_change.tP_form.y,
+        },
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          $.ajax({
-            url: "/api/add_check_point/",
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json",
-            processData: true,
-            data: {
-              point_id: self_change.tP_form.t_id,
-              point_name: self_change.tP_form.t_name,
-              point_address: self_change.tP_form.t_address,
-              locate_x_float: self_change.tP_form.x,
-              locate_y_float: self_change.tP_form.y,
-            },
-            success: function (dat) {
-              var jsonData = JSON.stringify(dat); // 转成JSON格式
-              self_change.people_input()
-            },
-          });
+          self_change.people_input();
         },
       });
       this.$notify({
@@ -309,13 +349,6 @@ export default {
     },
     //确认新增
     conf_newTP_input() {
-      let newTp = {
-        t_id: this.new_tP_form.t_id,
-        t_name: this.new_tP_form.t_name,
-        t_address: this.new_tP_form.t_address,
-        x: this.new_tP_form.x,
-        y: this.new_tP_form.y,
-      };
       const selffff = this;
       $.ajax({
         url: "/api/add_check_point/",
@@ -331,6 +364,7 @@ export default {
         },
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
+          selffff.people_input();
         },
       });
       this.$notify({
@@ -338,7 +372,11 @@ export default {
         type: "success",
         message: "已添加新采样点",
       });
-      this.testPlace_form.push(newTp);
+      this.new_tP_form.t_id = "";
+      this.new_tP_form.t_name = "";
+      this.new_tP_form.t_address = "";
+      this.new_tP_form.x = "";
+      this.new_tP_form.y = "";
       this.newTPForm_vis = false;
     },
     //分页有关（start）

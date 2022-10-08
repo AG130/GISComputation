@@ -6,7 +6,7 @@
         :data="
           db_p_info.slice((currentPage - 1) * pageSize, currentPage * pageSize)
         "
-        :default-sort="{prop:'id'}"
+        :default-sort="{ prop: 'id' }"
       >
         <el-table-column
           property="id"
@@ -95,7 +95,11 @@
       <el-dialog title="核酸人员录入" :visible.sync="new_p_input_vis">
         <el-form :model="new_p_form">
           <el-form-item label="序号" :label-width="p_form_width">
-            <el-input v-model="new_p_form.id" auto-complete="off"></el-input>
+            <el-input
+              v-model="new_p_form.id"
+              auto-complete="off"
+              :disabled="true"
+            ></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="p_form_width">
             <el-input v-model="new_p_form.name" auto-complete="off"></el-input>
@@ -151,7 +155,11 @@
       <el-dialog title="核酸人员录入" :visible.sync="changePInfo_vis">
         <el-form :model="p_form">
           <el-form-item label="序号" :label-width="p_form_width">
-            <el-input v-model="p_form.id" auto-complete="off"></el-input>
+            <el-input
+              v-model="p_form.id"
+              auto-complete="off"
+              :disabled="true"
+            ></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="p_form_width">
             <el-input v-model="p_form.name" auto-complete="off"></el-input>
@@ -289,6 +297,7 @@ export default {
     },
     //新增人员信息
     addNewPInfo() {
+      this.new_p_form.id = this.db_p_info.length + 1;
       this.new_p_input_vis = true;
     },
     // 编辑
@@ -299,24 +308,36 @@ export default {
     },
     // 删除行
     handleDelete(index, row) {
-      const selfff = this;
-      $.ajax({
-        url: "/api/delete_from_db/",
-        type: "GET",
-        dataType: "json",
-        data: { value: selfff.db_p_info[index].id },
-        success: function (dat) {
-          var jsonData = JSON.stringify(dat); // 转成JSON格式
-        },
-      });
+      this.$confirm("是否删除该人员？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const selfff = this;
+          $.ajax({
+            url: "/api/delete_from_db/",
+            type: "GET",
+            dataType: "json",
+            data: { value: selfff.db_p_info[index].id },
+            success: function (dat) {
+              var jsonData = JSON.stringify(dat); // 转成JSON格式
+              selfff.people_input();
+            },
+          });
 
-      this.$notify({
-        title: "成功",
-        message: "人员已删除",
-        type: "success",
-      });
-
-      this.db_p_info.splice(index, 1);
+          this.$notify({
+            title: "成功",
+            message: "人员已删除",
+            type: "success",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     //取消修改
     cancel_p_input() {
@@ -337,36 +358,25 @@ export default {
       //用户所填内容存于p_form中
       const self_change = this;
       $.ajax({
-        url: "/api/delete_from_db/",
+        url: "/api/change_from_db/",
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         processData: true,
-        data: { value: self_change.p_form.id }, //value为匹配
+        data: {
+          table_id: self_change.p_form.id,
+          name: self_change.p_form.name,
+          id_card: self_change.p_form.p_id,
+          checkdate: self_change.p_form.testDate,
+          result: self_change.p_form.testResult,
+          lat: self_change.p_form.x,
+          lon: self_change.p_form.y,
+          phone: self_change.p_form.p_phone,
+          address: self_change.p_form.p_address,
+        },
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          $.ajax({
-            url: "/api/add_to_db/",
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json",
-            processData: true,
-            data: {
-              table_id: self_change.p_form.id,
-              name: self_change.p_form.name,
-              id_card: self_change.p_form.p_id,
-              checkdate: self_change.p_form.testDate,
-              result: self_change.p_form.testResult,
-              lon: self_change.p_form.x,
-              lat: self_change.p_form.y,
-              phone: self_change.p_form.p_phone,
-              address: self_change.p_form.p_address,
-            },
-            success: function (dat) {
-              var jsonData = JSON.stringify(dat); // 转成JSON格式
-              self_change.people_input()
-            },
-          });
+          self_change.people_input();
         },
       });
       this.$notify({

@@ -266,6 +266,7 @@ export default {
             data: { line_id: selfffff.dia_form[index].id },
             success: function (dat) {
               var jsonData = JSON.stringify(dat); // 转成JSON格式
+              selfffff.people_input_positive()
             },
           });
           this.$notify({
@@ -273,7 +274,6 @@ export default {
             message:"人员已删除",
             title:'成功'
           })
-          this.dia_form.splice(index, 1);
         })
         .catch(() => {
           this.$message({

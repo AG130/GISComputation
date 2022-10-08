@@ -159,67 +159,86 @@ def add_to_db(request):  # 增
     )
     return JsonResponse(data={'result': 'success'})
 
+
 def deleta_from_db(request):  # 删
+    count = gis_table.objects.all().count()
     will_delete_id = request.GET.get('value')
     t = gis_table.objects.get(table_id=will_delete_id)
     t.delete()
+    will_delete_id1 = int(will_delete_id)
+    if will_delete_id1 < count:
+        for i in range(will_delete_id1 + 1, count + 1):
+            k = gis_table.objects.get(table_id=i)
+            k.table_id -= 1
+            k.save()
     return JsonResponse(data={'result': 'success'})
 
 
 def change_from_db(request):  # 改
-    change_id = request.GET.get('id')
-    change_type = request.GET.get('type')
-    change_value = request.GET.get('value')
-    # {'type':   ,'value':   }
-    # 判断查询类型
-    if change_type == "name":
-        t = gis_table.objects.get(table_id=change_id)
-        t.name = change_value
-        t.save()
-
-    elif change_type == "id_card":
-        t = gis_table.objects.get(table_id=change_id)
-        t.id_card = change_value
-        t.save()
-
-    elif change_type == "address":
-        t = gis_table.objects.get(table_id=change_id)
-        t.address = change_value
-        t.save()
-
-    elif change_type == "lat":
-        t = gis_table.objects.get(table_id=change_id)
-        t.lat = float(change_value)
-        t.save()
-
-    elif change_type == "lon":
-        t = gis_table.objects.get(table_id=change_id)
-        t.lon = float(change_value)
-        t.save()
-
-    elif change_type == "checkdate":
-        t = gis_table.objects.get(table_id=change_id)
-        t.checkdate = change_value
-        t.save()
-
-    elif change_type == "result":
-        t = gis_table.objects.get(table_id=change_id)
-        t.result = change_value
-        t.save()
-
-    # elif (change_type == "rect_explore"):
-    #     t = gis_table.objects.get(id=change_id)
-    #     t.locate_x_float = change_value[0]
-    #     t.locate_y_float = change_value[1]
-    #     t.locate_x = str(change_value[0])
-    #     t.locate_y = str(change_value[1])
+    # change_id = request.GET.get('id')
+    # change_type = request.GET.get('type')
+    # change_value = request.GET.get('value')
+    # # {'type':   ,'value':   }
+    # # 判断查询类型
+    # if change_type == "name":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.name = change_value
     #     t.save()
-
-    elif change_type == "phone":
-        t = gis_table.objects.get(table_id=change_id)
-        t.phone = change_value
-        t.save()
-
+    #
+    # elif change_type == "id_card":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.id_card = change_value
+    #     t.save()
+    #
+    # elif change_type == "address":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.address = change_value
+    #     t.save()
+    #
+    # elif change_type == "lat":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.lat = float(change_value)
+    #     t.save()
+    #
+    # elif change_type == "lon":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.lon = float(change_value)
+    #     t.save()
+    #
+    # elif change_type == "checkdate":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.checkdate = change_value
+    #     t.save()
+    #
+    # elif change_type == "result":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.result = change_value
+    #     t.save()
+    #
+    # # elif (change_type == "rect_explore"):
+    # #     t = gis_table.objects.get(id=change_id)
+    # #     t.locate_x_float = change_value[0]
+    # #     t.locate_y_float = change_value[1]
+    # #     t.locate_x = str(change_value[0])
+    # #     t.locate_y = str(change_value[1])
+    # #     t.save()
+    #
+    # elif change_type == "phone":
+    #     t = gis_table.objects.get(table_id=change_id)
+    #     t.phone = change_value
+    #     t.save()
+    change_id = request.GET.get('table_id')
+    t = gis_table.objects.get(table_id=change_id)
+    t.name = request.GET.get('name')
+    t.id_card = request.GET.get('id_card')
+    t.checkdate = request.GET.get('checkdate')
+    t.result = request.GET.get('result')
+    t.lat = request.GET.get('lat')
+    t.lon = request.GET.get('lon')
+    t.phone = request.GET.get('phone')
+    t.address = request.GET.get('address')
+    t.table_id = request.GET.get('table_id')
+    t.save()
     return JsonResponse(data={'result': 'success'})
 
 
@@ -343,14 +362,23 @@ def api_get_positive_info(request):
 
 
 def del_people_info(request):
+    count = positive_info.objects.all().count()
     will_delete_id = request.GET.get('line_id')
 
     t = positive_info.objects.get(line_id=will_delete_id)
     t.delete()
-
     tt = positive_line.objects.filter(line_id=will_delete_id)
     tt.delete()
-
+    will_delete_id1 = int(will_delete_id)
+    if will_delete_id1 < count:
+        for i in range(will_delete_id1 + 1, count + 1):
+            k1 = positive_info.objects.get(line_id=i)
+            k2 = positive_line.objects.filter(line_id=i)
+            k1.line_id -= 1
+            for k in k2:
+                k.line_id -= 1
+                k.save()
+            k1.save()
     return JsonResponse(data={'result': 'success'})
 
 
@@ -390,10 +418,16 @@ def add_check_point(request):
 
 
 def del_check_point(request):
+    count = check_point.objects.all().count()
     will_delete_id = request.GET.get('point_id')
     t = check_point.objects.get(point_id=will_delete_id)
     t.delete()
-
+    will_delete_id1 = int(will_delete_id)
+    if will_delete_id1 < count:
+        for i in range(will_delete_id1 + 1, count + 1):
+            k = check_point.objects.get(point_id=i)
+            k.point_id -= 1
+            k.save()
     return JsonResponse(data={'result': 'success'})
 
 
@@ -436,31 +470,13 @@ def sevelal_day_without_check(request):
 
 
 def edit_test_place(request):
-    change_id = request.GET.get('id')
-    change_type = request.GET.get('type')
-    change_value = request.GET.get('value')
-    if change_type == "t_id":
-        t = check_point.objects.get(point_id=change_id)
-        t.point_id = change_value
-        t.save()
-    elif change_type == "t_name":
-        t = check_point.objects.get(point_id=change_id)
-        t.point_name = change_value
-        t.save()
-
-    elif change_type == "t_address":
-        t = check_point.objects.get(point_id=change_id)
-        t.point_address = change_value
-        t.save()
-
-    elif change_type == "x":
-        t = check_point.objects.get(point_id=change_id)
-        t.locate_x_float = change_value
-        t.save()
-
-    elif change_type == "y":
-        t = check_point.objects.get(point_id=change_id)
-        t.locate_y_float = change_value
-        t.save()
+    change_id = request.GET.get('point_id')
+    t = check_point.objects.get(point_id=change_id)
+    t.point_id=change_id
+    t.point_name=request.GET.get('point_name')
+    t.point_address=request.GET.get('point_address')
+    t.locate_x_float=request.GET.get('locate_x_float')
+    t.locate_y_float=request.GET.get('locate_y_float')
+    t.save()
 
     return JsonResponse(data={'result': 'success'})
