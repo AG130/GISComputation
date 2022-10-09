@@ -615,13 +615,13 @@ export default {
   height: 200px;
 }
 .index {
-  padding: 10px;
+  padding: 0px;
   margin: 0px;
-  height: 90vh;
+  height: 100vh;
 }
 .el-container {
   padding: 0px;
   margin: 0px;
-  height: 99vh;
+  height: 100vh;
 }
 </style>
