@@ -8,7 +8,7 @@
           position: relative;
           bottom: 10px;
           right: 10px;
-          z-index: 10000000;
+          z-index: 0;
           width: 200px;
           line-height: 30px;
           background: rgba(0, 0, 0, 0.5);
