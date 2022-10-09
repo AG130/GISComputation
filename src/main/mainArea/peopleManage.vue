@@ -31,12 +31,12 @@
         <el-table-column
           property="x"
           label="经度"
-          width="100"
+          width="300"
         ></el-table-column>
         <el-table-column
           property="y"
           label="纬度"
-          width="100"
+          width="300"
         ></el-table-column>
         <el-table-column
           property="p_phone"
@@ -113,11 +113,19 @@
               auto-complete="off"
             ></el-input>
           </el-form-item>
-          <el-form-item label="经度" :label-width="p_form_width">
-            <el-input v-model="new_p_form.x" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="纬度" :label-width="p_form_width">
-            <el-input v-model="new_p_form.y" auto-complete="off"></el-input>
+          <el-form-item label="经纬度" :label-width="p_form_width">
+            <div align="right">
+              <el-input
+                type="textarea"
+                :autosize="{ minRows: 2 }"
+                placeholder="核酸检测点坐标将自动匹配到此处"
+                :disabled="true"
+                v-model="new_p_form_xy"
+              ></el-input>
+              <el-button type="primary" @click="choosePeoplePosition"
+                >选取人员坐标</el-button
+              >
+            </div>
           </el-form-item>
           <el-form-item label="联系方式" :label-width="p_form_width">
             <el-input
@@ -170,11 +178,19 @@
           <el-form-item label="住址" :label-width="p_form_width">
             <el-input v-model="p_form.p_address" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="经度" :label-width="p_form_width">
-            <el-input v-model="p_form.x" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="纬度" :label-width="p_form_width">
-            <el-input v-model="p_form.y" auto-complete="off"></el-input>
+          <el-form-item label="经纬度" :label-width="p_form_width">
+            <div align="right">
+              <el-input
+                type="textarea"
+                :autosize="{ minRows: 2 }"
+                placeholder="核酸检测点坐标将自动匹配到此处"
+                :disabled="true"
+                v-model="new_p_form_xy"
+              ></el-input>
+              <el-button type="primary" @click="choosePeoplePosition"
+                >选取人员坐标</el-button
+              >
+            </div>
           </el-form-item>
           <el-form-item label="联系方式" :label-width="p_form_width">
             <el-input v-model="p_form.p_phone" auto-complete="off"></el-input>
@@ -204,7 +220,9 @@
 </template>
 
 <script>
+import utils from "@/utils";
 export default {
+  inject: ["changeView", "chooseNewPeopleP"],
   data() {
     return {
       //人员信息表
@@ -227,6 +245,7 @@ export default {
         testDate: "",
         testResult: "",
       },
+      new_p_form_xy: "",
       //修改人员信息
       p_form: {
         id: "",
@@ -261,6 +280,14 @@ export default {
 
   mounted() {
     this.people_input();
+    var that = this;
+    utils.$on("newPeopleP", (data) => {
+      that.new_p_form_xy = data;
+      that.new_p_form.x = data[0];
+      that.new_p_form.y = data[1];
+      that.p_form.x = data[0];
+      that.p_form.y = data[1];
+    });
   },
 
   methods: {
@@ -297,13 +324,19 @@ export default {
     },
     //新增人员信息
     addNewPInfo() {
+      this.new_p_form_xy=[]
       this.new_p_form.id = this.db_p_info.length + 1;
       this.new_p_input_vis = true;
+    },
+    choosePeoplePosition() {
+      this.changeView(0);
+      this.chooseNewPeopleP();
     },
     // 编辑
     handleEdit(index, row) {
       this.changePInfo_vis = true;
       this.p_form = Object.assign({}, row);
+      this.new_p_form_xy = [this.db_p_info[index].x, this.db_p_info[index].y];
       this.changePInfo_row = row;
     },
     // 删除行
@@ -412,7 +445,7 @@ export default {
         testDate: this.new_p_form.testDate,
         testResult: this.new_p_form.testResult,
       };
-      this.db_p_info.push(row);
+      const self = this
 
       $.ajax({
         url: "/api/add_to_db/",
@@ -431,6 +464,7 @@ export default {
         },
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
+          self.people_input()
         },
       });
       this.$notify({

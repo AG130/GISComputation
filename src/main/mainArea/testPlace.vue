@@ -284,35 +284,6 @@ export default {
     //确认修改
     conf_tp_input() {
       const self_change = this;
-      // $.ajax({
-      //   url: "/api/del_check_point/",
-      //   type: "GET",
-      //   dataType: "json",
-      //   contentType: "application/json",
-      //   processData: true,
-      //   data: { point_id: self_change.tP_form.t_id }, //value为匹配
-      //   success: function (dat) {
-      //     var jsonData = JSON.stringify(dat); // 转成JSON格式
-      //     $.ajax({
-      //       url: "/api/add_check_point/",
-      //       type: "GET",
-      //       dataType: "json",
-      //       contentType: "application/json",
-      //       processData: true,
-      //       data: {
-      //         point_id: self_change.tP_form.t_id,
-      //         point_name: self_change.tP_form.t_name,
-      //         point_address: self_change.tP_form.t_address,
-      //         locate_x_float: self_change.tP_form.x,
-      //         locate_y_float: self_change.tP_form.y,
-      //       },
-      //       success: function (dat) {
-      //         var jsonData = JSON.stringify(dat); // 转成JSON格式
-      //         self_change.people_input()
-      //       },
-      //     });
-      //   },
-      // });
       $.ajax({
         url: "/api/edit_test_place/",
         type: "GET",

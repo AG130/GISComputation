@@ -23,9 +23,9 @@ export default {
         fixed: "true",
         vertical: "top",
         horizontal: "left",
-        right: "10",
-        top: "70",
-        key: "4d6d2791350e4e6f90bfd0a686471294",
+        right: "8",
+        top: "10",
+        key: "a1d4db0a75ee4f8fa651a33e1a846db3",
       },
     };
     (function (d) {

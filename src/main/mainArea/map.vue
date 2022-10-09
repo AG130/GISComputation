@@ -438,6 +438,49 @@ export default {
     clearBuffer() {
       this.trailBufferLayer.getSource().clear();
     },
+    //绘制人员
+    onAddPeople(type) {
+      let self = this;
+      //勾绘矢量图形的类
+      this.draw = new Draw({
+        //source代表勾绘的要素属于的数据集
+        source: self.drawSource,
+        //type 表示勾绘的要素包含的 geometry 类型
+        type: type,
+      });
+      this.draw.on("drawend", function (e) {
+        const geometry = e.feature.getGeometry();
+        let pointArr = geometry.getCoordinates();
+        utils.$emit("newPeopleP", pointArr);
+        self.coordinate = [];
+        self.removeDraw();
+        self.changeView(1);
+        self.drawSource.getSource().removeFeature(this.draw);
+      });
+      self.map.addInteraction(this.draw);
+    },
+    //绘制点
+    addPeoplePoint() {
+      let selectedStyle = new Style({
+        image: new Circle({
+          radius: 5,
+          stroke: new Stroke({
+            color: "#fff",
+          }),
+          fill: new Fill({
+            color: "#66ccff",
+          }),
+        }),
+      });
+      this.selectTool = new Select({
+        multi: true,
+        hitTolerance: 10, // 误差
+        style: selectedStyle, // 选中要素的样式
+      });
+      this.map.addInteraction(this.selectTool);
+      //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
+      this.onAddPeople("Point");
+    },
     //绘图点工具
     onAddPoint(type) {
       let self = this;
@@ -520,7 +563,9 @@ export default {
 <style>
 #mapDiv {
   width: 100%;
-  height: 600px;
+  height: 88vh;
+  padding: 0;
+  margin: 0;
 }
 
 #mapDiv .ol-zoom .ol-zoom-out {

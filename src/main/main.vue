@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div>
-      <el-container>
+    <div class="index">
+      <el-container class="index-container">
         <!-- 侧边栏 -->
         <el-aside width="200px">
           <div class="asideBand">核酸检测助手</div>
@@ -9,7 +9,8 @@
           <el-menu
             background-color="#0099ff"
             active-text-color="white"
-            :unique-opened="true"
+            :unique-opened="false"
+            :default-openeds="['1','2','3']"
           >
             <el-submenu index="1">
               <template v-slot:title
@@ -90,7 +91,7 @@
           <el-header>
             <div style="text-align: left">
               {{ page_name[tab] }}
-              <div style="z-index: 100">
+              <div>
                 <WeatherReport ref="weatherReport" />
               </div>
             </div>
@@ -213,6 +214,7 @@ export default {
       username: this.username,
       changeView: this.changeView,
       locatePlace_form: this.locatePlace_form,
+      chooseNewPeopleP:this.chooseNewPeopleP,
       chooseTrail: this.chooseTrail,
       chooseNewTP: this.chooseNewTP,
     };
@@ -311,6 +313,9 @@ export default {
     //核酸人员管理->人员录入
     peopleManage() {
       this.tab = 1;
+    },
+    chooseNewPeopleP(){
+      this.$refs.map.addPeoplePoint()
     },
     //核酸人员管理->未检核酸人员查询
     showSearchPeople() {
@@ -451,7 +456,7 @@ export default {
     },
     //轨迹分析->清空路径
     clearTrail() {
-      this.$refs.map.clearTrail()
+      this.$refs.map.clearTrail();
       this.$notify({
         title: "成功",
         message: "已清除路径",
@@ -532,7 +537,7 @@ export default {
     },
     //轨迹分析->清空密接区域
     clearBuffer() {
-      this.$refs.map.clearBuffer()
+      this.$refs.map.clearBuffer();
       this.$notify({
         title: "成功",
         message: "已清除密接区域",
@@ -566,14 +571,14 @@ export default {
         type: "success",
       });
     },
-    clearTestPosition(){
-      this.$refs.map.clearTestPosition()
+    clearTestPosition() {
+      this.$refs.map.clearTestPosition();
       this.$notify({
         title: "成功",
         message: "已清除采样点",
         type: "success",
       });
-    }
+    },
   },
 };
 </script>
@@ -605,5 +610,15 @@ export default {
 .personalInf {
   background-color: white;
   height: 200px;
+}
+.index {
+  padding: 0px;
+  margin: 0px;
+  height: 100vh;
+}
+.el-container {
+  padding: 0px;
+  margin: 0px;
+  height: 100vh;
 }
 </style>
