@@ -12,7 +12,7 @@
             background-color="#0099ff"
             active-text-color="white"
             :unique-opened="false"
-            :default-openeds="['1','2','3']"
+            :default-openeds="['4','2','3']"
           >
             <el-submenu index="1">
               <template v-slot:title
