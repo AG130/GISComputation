@@ -23,7 +23,7 @@ export default {
   data() {
     return {
       //地图框架
-      map: null,
+      map1: null,
       OSMLayer: null,
       //绘制轨迹
       draw: null,
@@ -37,7 +37,9 @@ export default {
   },
   mounted() {
     var that =this
-    that.initMap()
+    setTimeout(()=>{
+      that.initMap()
+    },6000)
   },
   methods: {
     initMap() {
@@ -61,7 +63,7 @@ export default {
       this.drawLayer = new VectorLayer({
         source: this.drawSource,
       });
-      this.map = new Map({
+      this.map1 = new Map({
         target: "miniMapDiv1",
         layers: [this.OSMLayer, this.drawLayer],
         view: new View({
@@ -74,9 +76,9 @@ export default {
         controls: defaultControls({ zoom: true }).extend([OverviewMapControl]),
       });
       //导航条
-      this.map.addControl(new ZoomSlider());
+      this.map1.addControl(new ZoomSlider());
       //比例尺
-      this.map.addControl(
+      this.map1.addControl(
         new ScaleLine({
           units: "metric",
         })
@@ -84,7 +86,7 @@ export default {
     },
     //删除交互
     removeDraw() {
-      this.map.removeInteraction(this.draw);
+      this.map1.removeInteraction(this.draw);
     },
     //绘制人员
     onAddPeople(type,t) {
@@ -109,7 +111,7 @@ export default {
         self.drawLayer.getSource().clear()
         self.removeDraw();
       });
-      self.map.addInteraction(this.draw);
+      self.map1.addInteraction(this.draw);
     },
     //绘制点
     addPeoplePoint(t) {
@@ -129,7 +131,7 @@ export default {
         hitTolerance: 10, // 误差
         style: selectedStyle, // 选中要素的样式
       });
-      this.map.addInteraction(this.selectTool);
+      this.map1.addInteraction(this.selectTool);
       //调用绘图工具并传递类型为线，其他类型有Point,LineString,Polygon,Circle
       this.onAddPeople("Point", t);
     },
@@ -143,7 +145,7 @@ export default {
   height: 600px;
   padding: 0;
   margin: 0;
-  z-index: 10;
+  z-index: 0;
 }
 
 #miniMapDiv1 .ol-zoom .ol-zoom-out {

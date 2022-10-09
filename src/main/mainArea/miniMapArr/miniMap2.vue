@@ -41,7 +41,9 @@ export default {
   },
   mounted() {
     let self = this;
-    self.initMap();
+    setTimeout(()=>{
+      self.initMap()
+    },6000)
   },
   methods: {
     initMap() {

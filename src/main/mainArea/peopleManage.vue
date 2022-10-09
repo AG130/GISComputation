@@ -292,7 +292,6 @@ export default {
       that.p_form.x = data[0];
       that.p_form.y = data[1];
     });
-    that.$refs.miniMap1.initMap()
   },
   methods: {
     changeVis(params){
