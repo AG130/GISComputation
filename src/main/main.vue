@@ -3,7 +3,7 @@
     <div class="index">
       <el-container class="index-container">
         <!-- 侧边栏 -->
-        <el-aside width="200px">
+        <el-aside width="250px">
           <div class="asideBand">
             <img src="../assets/logo.png" alt="">
           </div>
@@ -194,7 +194,6 @@
 
 <script>
 import PersonalInf from "./aside/personalInf.vue";
-import weatherReport from "./head/weatherReport.vue";
 import Map from "./mainArea/map.vue";
 import PInfDetail from "./mainArea/pInfDetail.vue";
 import PeopleManage from "./mainArea/peopleManage.vue";
@@ -210,7 +209,7 @@ export default {
     DiagnoseP,
     TestPlace,
     WeatherReport,
-  },
+},
   provide() {
     return {
       username: this.username,
@@ -597,6 +596,7 @@ export default {
 .el-aside {
   background-color: #09f;
   color: #333;
+  width: 300px;
 }
 
 .el-main {

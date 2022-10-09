@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 人员管理表格 -->
-    <div>
+    <div style="height: 590px">
       <el-table
         :data="
           db_p_info.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -82,13 +82,16 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[1, 5, 10, 20, 40]"
+          :page-sizes="[5, 10]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="db_p_info.length"
         >
         </el-pagination>
       </div>
+    </div>
+    <div>
+      <MiniMap1 @changeVis="changeVis" ref="miniMap1"/>
     </div>
     <!-- 新增信息弹窗 -->
     <div>
@@ -122,7 +125,7 @@
                 :disabled="true"
                 v-model="new_p_form_xy"
               ></el-input>
-              <el-button type="primary" @click="choosePeoplePosition"
+              <el-button type="primary" @click="choosePeoplePosition(0)"
                 >选取人员坐标</el-button
               >
             </div>
@@ -187,7 +190,7 @@
                 :disabled="true"
                 v-model="new_p_form_xy"
               ></el-input>
-              <el-button type="primary" @click="choosePeoplePosition"
+              <el-button type="primary" @click="choosePeoplePosition(1)"
                 >选取人员坐标</el-button
               >
             </div>
@@ -221,7 +224,9 @@
 
 <script>
 import utils from "@/utils";
+import MiniMap1 from "./miniMapArr/miniMap1.vue";
 export default {
+  components: { MiniMap1 },
   inject: ["changeView", "chooseNewPeopleP"],
   data() {
     return {
@@ -277,7 +282,6 @@ export default {
       //分页有关（end）
     };
   },
-
   mounted() {
     this.people_input();
     var that = this;
@@ -288,9 +292,16 @@ export default {
       that.p_form.x = data[0];
       that.p_form.y = data[1];
     });
+    that.$refs.miniMap1.initMap()
   },
-
   methods: {
+    changeVis(params){
+      if(params==0){
+        this.new_p_input_vis=true
+      }else{
+        this.changePInfo_vis=true
+      }
+    },
     //人员信息表初始化
     people_input() {
       this.db_p_info = [];
@@ -324,13 +335,17 @@ export default {
     },
     //新增人员信息
     addNewPInfo() {
-      this.new_p_form_xy=[]
+      this.new_p_form_xy = [];
       this.new_p_form.id = this.db_p_info.length + 1;
       this.new_p_input_vis = true;
     },
-    choosePeoplePosition() {
-      this.changeView(0);
-      this.chooseNewPeopleP();
+    choosePeoplePosition(t) {
+      if(t==0){
+        this.new_p_input_vis=false
+      }else{
+        this.changePInfo_vis=false
+      }
+      this.$refs.miniMap1.addPeoplePoint(t)
     },
     // 编辑
     handleEdit(index, row) {
@@ -358,7 +373,6 @@ export default {
               selfff.people_input();
             },
           });
-
           this.$notify({
             title: "成功",
             message: "人员已删除",
@@ -445,8 +459,7 @@ export default {
         testDate: this.new_p_form.testDate,
         testResult: this.new_p_form.testResult,
       };
-      const self = this
-
+      const self = this;
       $.ajax({
         url: "/api/add_to_db/",
         type: "GET",
@@ -464,7 +477,7 @@ export default {
         },
         success: function (dat) {
           var jsonData = JSON.stringify(dat); // 转成JSON格式
-          self.people_input()
+          self.people_input();
         },
       });
       this.$notify({
@@ -472,7 +485,6 @@ export default {
         type: "success",
         message: "人员添加成功",
       });
-
       this.new_p_form.id = "";
       this.new_p_form.name = "";
       this.new_p_form.p_id = "";

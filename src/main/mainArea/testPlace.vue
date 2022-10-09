@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div style="height: 590px;">
       <el-table
         :data="
           testPlace_form.slice(
@@ -53,13 +53,16 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[1, 5, 10, 20, 40]"
+          :page-sizes="[5, 10]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="testPlace_form.length"
         >
         </el-pagination>
       </div>
+    </div>
+    <div>
+      <MiniMap3 ref="miniMap3" @changeVis="changeVis" />
     </div>
 
     <div>
@@ -93,7 +96,7 @@
                 :disabled="true"
                 v-model="newTestP_xy"
               ></el-input>
-              <el-button type="primary" @click="chooseNewTestP"
+              <el-button type="primary" @click="chooseNewTestP(0)"
                 >选取核酸检测点</el-button
               >
             </div>
@@ -134,7 +137,7 @@
                 :disabled="true"
                 v-model="newTestP_xy"
               ></el-input>
-              <el-button type="primary" @click="chooseNewTestP"
+              <el-button type="primary" @click="chooseNewTestP(1)"
                 >选取核酸检测点</el-button
               >
             </div>
@@ -151,6 +154,7 @@
 
 <script>
 import utils from "@/utils";
+import MiniMap3 from "./miniMapArr/miniMap3.vue";
 export default {
   inject: ["changeView", "chooseNewTP"],
   mounted() {
@@ -193,6 +197,13 @@ export default {
     };
   },
   methods: {
+    changeVis(params) {
+      if (params == 0) {
+        this.newTPForm_vis = true;
+      } else {
+        this.tpForm_vis = true;
+      }
+    },
     people_input() {
       this.testPlace_form = [];
       const self = this;
@@ -226,9 +237,13 @@ export default {
       this.newTPForm_vis = true;
     },
     //选取新检测点
-    chooseNewTestP() {
-      this.changeView(0);
-      this.chooseNewTP();
+    chooseNewTestP(t) {
+      if (t == 0) {
+        this.newTPForm_vis = false;
+      } else {
+        this.tpForm_vis = false;
+      }
+      this.$refs.miniMap3.addPoint(t);
     },
     //编辑
     handleEdit(index, row) {
@@ -359,6 +374,7 @@ export default {
     },
     //分页有关（end）
   },
+  components: { MiniMap3 },
 };
 </script>
 
