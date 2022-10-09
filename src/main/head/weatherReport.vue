@@ -23,8 +23,8 @@ export default {
         fixed: "true",
         vertical: "top",
         horizontal: "left",
-        right: "8",
-        top: "10",
+        right: "18",
+        top: "18",
         key: "a1d4db0a75ee4f8fa651a33e1a846db3",
       },
     };

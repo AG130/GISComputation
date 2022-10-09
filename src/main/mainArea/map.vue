@@ -563,7 +563,7 @@ export default {
 <style>
 #mapDiv {
   width: 100%;
-  height: 88vh;
+  height: 90vh;
   padding: 0;
   margin: 0;
 }

@@ -4,7 +4,9 @@
       <el-container class="index-container">
         <!-- 侧边栏 -->
         <el-aside width="200px">
-          <div class="asideBand">核酸检测助手</div>
+          <div class="asideBand">
+            <img src="../assets/logo.png" alt="">
+          </div>
           <div class="personalInf"><PersonalInf ref="personalInf" /></div>
           <el-menu
             background-color="#0099ff"
@@ -603,22 +605,23 @@ export default {
   text-align: center;
 }
 .asideBand {
+  background-color: #ffffff;
   font-size: large;
   height: 60px;
-  line-height: 60px;
+  line-height: 80px;
 }
 .personalInf {
   background-color: white;
   height: 200px;
 }
 .index {
-  padding: 0px;
+  padding: 10px;
   margin: 0px;
-  height: 100vh;
+  height: 90vh;
 }
 .el-container {
   padding: 0px;
   margin: 0px;
-  height: 100vh;
+  height: 99vh;
 }
 </style>
